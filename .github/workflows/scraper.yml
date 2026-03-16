@@ -2,7 +2,7 @@ name: Fuel Price API Update
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 6 * * *"   # runs daily at 06:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -25,10 +25,10 @@ jobs:
       - name: Run scraper
         run: python scraper.py
 
-      - name: Commit updated data
-  run: |
-    git config --global user.name "github-actions"
-    git config --global user.email "actions@github.com"
-    git add fuel_prices_latest.json history_json/
-    git commit -m "Daily fuel update" || echo "No changes"
-    git push
+      - name: Commit and push data
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add fuel_prices_latest.json history_json/ || true
+          git commit -m "Daily fuel update" || echo "No changes"
+          git push
