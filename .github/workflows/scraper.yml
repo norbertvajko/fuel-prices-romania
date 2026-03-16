@@ -30,6 +30,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add fuel_prices_latest.json history_json/ || true
+          [ -f fuel_prices_latest.json ] && git add fuel_prices_latest.json
+          [ -d history_json ] && git add history_json
           git diff --cached --quiet || git commit -m "Daily fuel update"
           git push
