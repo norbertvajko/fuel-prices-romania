@@ -1,9 +1,8 @@
-# .github/workflows/scraper.yml
 name: Fuel Price API Update
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 6 * * *"   # daily at 06:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -13,13 +12,12 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # 1️⃣ Checkout repository on main branch
+      # 1️⃣ Checkout the repository with token
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main
-          persist-credentials: true
+          persist-credentials: true   # ensures git push works
 
       # 2️⃣ Setup Python
       - name: Setup Python
@@ -35,22 +33,18 @@ jobs:
       - name: Run scraper
         run: python scraper.py
 
-      # 5️⃣ Commit and push only if there are changes
+      # 5️⃣ Commit & push JSON files only if there are changes
       - name: Commit and push JSON updates
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          # Stage JSON files
-          git add fuel_prices_latest.json fuel_prices_all.json history_json/ || true
+          git add fuel_prices_latest.json fuel_prices_all.json
+          git add history_json/
 
-          # Check if there are any changes
-          CHANGES=$(git diff --cached --name-only)
-          if [ -z "$CHANGES" ]; then
-            echo "No changes to commit, skipping push"
-          else
-            # Ensure we are on main branch to avoid detached HEAD
-            git checkout main
+          if ! git diff --cached --quiet; then
             git commit -m "Daily fuel update"
-            git push origin main
+            git push
+          else
+            echo "No changes to commit"
           fi
