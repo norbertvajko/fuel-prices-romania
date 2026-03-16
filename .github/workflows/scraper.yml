@@ -2,6 +2,7 @@ name: Fuel Price API Update
 
 on:
   schedule:
+    # Run daily at 06:00 UTC
     - cron: "0 6 * * *"
   workflow_dispatch:
 
@@ -12,28 +13,36 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
+      # 1️⃣ Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true
 
+      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # 4️⃣ Run the scraper
       - name: Run scraper
         run: python scraper.py
 
-      - name: Commit and push data
+      # 5️⃣ Commit & push only if there are changes
+      - name: Commit and push JSON updates
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          [ -f fuel_prices_latest.json ] && git add fuel_prices_latest.json
-          [ -d history_json ] && git add history_json
+
+          # Add all JSON files
+          git add fuel_prices_latest.json fuel_prices_all.json
+          git add history_json/
+
+          # Commit only if there are changes
           git diff --cached --quiet || git commit -m "Daily fuel update"
-          git diff --cached --quiet || git push
+
+          # Push to main
+          git push
