@@ -1,0 +1,1022 @@
+{
+    "Venezuela": {
+        "09-Mar-2026": {
+            "diesel": 0.004,
+            "gasoline": 0.029
+        }
+    },
+    "Iran": {
+        "09-Mar-2026": {
+            "diesel": 0.004,
+            "gasoline": 0.024
+        }
+    },
+    "Libya": {
+        "09-Mar-2026": {
+            "diesel": 0.006,
+            "gasoline": 0.024
+        }
+    },
+    "Algeria": {
+        "09-Mar-2026": {
+            "diesel": 0.006,
+            "gasoline": 0.035
+        }
+    },
+    "Turkmenistan": {
+        "09-Mar-2026": {
+            "diesel": 0.024,
+            "gasoline": 0.327
+        }
+    },
+    "Kuwait": {
+        "09-Mar-2026": {
+            "diesel": 0.024,
+            "gasoline": 0.035
+        }
+    },
+    "Egypt": {
+        "09-Mar-2026": {
+            "diesel": 0.236,
+            "gasoline": 0.327
+        }
+    },
+    "Angola": {
+        "09-Mar-2026": {
+            "diesel": 0.236,
+            "gasoline": 0.029
+        }
+    },
+    "Saudi Arabia": {
+        "09-Mar-2026": {
+            "diesel": 0.285,
+            "gasoline": 0.357
+        }
+    },
+    "Bahrain": {
+        "09-Mar-2026": {
+            "diesel": 0.285,
+            "gasoline": 0.357
+        }
+    },
+    "Qatar": {
+        "09-Mar-2026": {
+            "diesel": 0.374,
+            "gasoline": 0.342
+        }
+    },
+    "Kazakhstan": {
+        "09-Mar-2026": {
+            "diesel": 0.374,
+            "gasoline": 0.342
+        }
+    },
+    "Azerbaijan": {
+        "09-Mar-2026": {
+            "diesel": 0.394,
+            "gasoline": 0.462
+        }
+    },
+    "Trinidad & Tobago": {
+        "09-Mar-2026": {
+            "diesel": 0.394,
+            "gasoline": 0.885
+        }
+    },
+    "Sudan": {
+        "09-Mar-2026": {
+            "diesel": 0.436,
+            "gasoline": 0.522
+        }
+    },
+    "Oman": {
+        "09-Mar-2026": {
+            "diesel": 0.436,
+            "gasoline": 0.428
+        }
+    },
+    "Ecuador": {
+        "09-Mar-2026": {
+            "diesel": 0.477,
+            "gasoline": 0.522
+        }
+    },
+    "UAE": {
+        "09-Mar-2026": {
+            "diesel": 0.477,
+            "gasoline": 0.462
+        }
+    },
+    "Syria": {
+        "09-Mar-2026": {
+            "diesel": 0.53,
+            "gasoline": 0.649
+        }
+    },
+    "Tunisia": {
+        "09-Mar-2026": {
+            "diesel": 0.53,
+            "gasoline": 0.649
+        }
+    },
+    "Bhutan": {
+        "09-Mar-2026": {
+            "diesel": 0.563,
+            "gasoline": 0.502
+        }
+    },
+    "Colombia": {
+        "09-Mar-2026": {
+            "diesel": 0.563,
+            "gasoline": 0.84
+        }
+    },
+    "Malaysia": {
+        "09-Mar-2026": {
+            "diesel": 0.595,
+            "gasoline": 0.502
+        }
+    },
+    "Guyana": {
+        "09-Mar-2026": {
+            "diesel": 0.595,
+            "gasoline": 0.622
+        }
+    },
+    "Bangladesh": {
+        "09-Mar-2026": {
+            "diesel": 0.647,
+            "gasoline": 0.7
+        }
+    },
+    "Burma": {
+        "09-Mar-2026": {
+            "diesel": 0.647,
+            "gasoline": 0.622
+        }
+    },
+    "Indonesia": {
+        "09-Mar-2026": {
+            "diesel": 0.65,
+            "gasoline": 0.621
+        }
+    },
+    "Taiwan": {
+        "09-Mar-2026": {
+            "diesel": 0.65,
+            "gasoline": 0.685
+        }
+    },
+    "Belarus": {
+        "09-Mar-2026": {
+            "diesel": 0.656,
+            "gasoline": 0.675
+        }
+    },
+    "Honduras": {
+        "09-Mar-2026": {
+            "diesel": 0.656,
+            "gasoline": 0.813
+        }
+    },
+    "Ethiopia": {
+        "09-Mar-2026": {
+            "diesel": 0.671,
+            "gasoline": 0.622
+        }
+    },
+    "Kyrgyzstan": {
+        "09-Mar-2026": {
+            "diesel": 0.671,
+            "gasoline": 0.676
+        }
+    },
+    "Panama": {
+        "09-Mar-2026": {
+            "diesel": 0.713,
+            "gasoline": 0.68
+        }
+    },
+    "Curacao": {
+        "09-Mar-2026": {
+            "diesel": 0.713,
+            "gasoline": 0.845
+        }
+    },
+    "Jordan": {
+        "09-Mar-2026": {
+            "diesel": 0.741,
+            "gasoline": 1.122
+        }
+    },
+    "Japan": {
+        "09-Mar-2026": {
+            "diesel": 0.741,
+            "gasoline": 0.729
+        }
+    },
+    "El Salvador": {
+        "09-Mar-2026": {
+            "diesel": 0.753,
+            "gasoline": 0.735
+        }
+    },
+    "Lebanon": {
+        "09-Mar-2026": {
+            "diesel": 0.753,
+            "gasoline": 0.802
+        }
+    },
+    "Thailand": {
+        "09-Mar-2026": {
+            "diesel": 0.76,
+            "gasoline": 1.036
+        }
+    },
+    "Paraguay": {
+        "09-Mar-2026": {
+            "diesel": 0.76,
+            "gasoline": 0.675
+        }
+    },
+    "Nepal": {
+        "09-Mar-2026": {
+            "diesel": 0.76,
+            "gasoline": 0.844
+        }
+    },
+    "Fiji": {
+        "09-Mar-2026": {
+            "diesel": 0.76,
+            "gasoline": 0.87
+        }
+    },
+    "Russia": {
+        "09-Mar-2026": {
+            "diesel": 0.771,
+            "gasoline": 0.622
+        }
+    },
+    "Liberia": {
+        "09-Mar-2026": {
+            "diesel": 0.771,
+            "gasoline": 0.68
+        }
+    },
+    "Dom. Rep.": {
+        "09-Mar-2026": {
+            "diesel": 0.795,
+            "gasoline": 1.003
+        }
+    },
+    "India": {
+        "09-Mar-2026": {
+            "diesel": 0.795,
+            "gasoline": 0.854
+        }
+    },
+    "Uzbekistan": {
+        "09-Mar-2026": {
+            "diesel": 0.804,
+            "gasoline": 0.844
+        }
+    },
+    "Gabon": {
+        "09-Mar-2026": {
+            "diesel": 0.804,
+            "gasoline": 0.84
+        }
+    },
+    "Philippines": {
+        "09-Mar-2026": {
+            "diesel": 0.816,
+            "gasoline": 0.685
+        }
+    },
+    "Afghanistan": {
+        "09-Mar-2026": {
+            "diesel": 0.816,
+            "gasoline": 0.7
+        }
+    },
+    "Chile": {
+        "09-Mar-2026": {
+            "diesel": 0.859,
+            "gasoline": 1.068
+        }
+    },
+    "Nigeria": {
+        "09-Mar-2026": {
+            "diesel": 0.859,
+            "gasoline": 0.621
+        }
+    },
+    "China": {
+        "09-Mar-2026": {
+            "diesel": 0.867,
+            "gasoline": 0.956
+        }
+    },
+    "Puerto Rico": {
+        "09-Mar-2026": {
+            "diesel": 0.867,
+            "gasoline": 0.802
+        }
+    },
+    "Cuba": {
+        "09-Mar-2026": {
+            "diesel": 0.883,
+            "gasoline": 1.014
+        }
+    },
+    "Niger": {
+        "09-Mar-2026": {
+            "diesel": 0.883,
+            "gasoline": 0.676
+        }
+    },
+    "Tanzania": {
+        "09-Mar-2026": {
+            "diesel": 0.885,
+            "gasoline": 0.854
+        }
+    },
+    "DR Congo": {
+        "09-Mar-2026": {
+            "diesel": 0.885,
+            "gasoline": 0.87
+        }
+    },
+    "Madagascar": {
+        "09-Mar-2026": {
+            "diesel": 0.888,
+            "gasoline": 0.91
+        }
+    },
+    "Aruba": {
+        "09-Mar-2026": {
+            "diesel": 0.888,
+            "gasoline": 0.979
+        }
+    },
+    "Costa Rica": {
+        "09-Mar-2026": {
+            "diesel": 0.893,
+            "gasoline": 1.056
+        }
+    },
+    "Guatemala": {
+        "09-Mar-2026": {
+            "diesel": 0.893,
+            "gasoline": 0.91
+        }
+    },
+    "Maldives": {
+        "09-Mar-2026": {
+            "diesel": 0.901,
+            "gasoline": 0.813
+        }
+    },
+    "Sri Lanka": {
+        "09-Mar-2026": {
+            "diesel": 0.901,
+            "gasoline": 0.906
+        }
+    },
+    "Cape Verde": {
+        "09-Mar-2026": {
+            "diesel": 0.903,
+            "gasoline": 1.056
+        }
+    },
+    "Georgia": {
+        "09-Mar-2026": {
+            "diesel": 0.903,
+            "gasoline": 0.886
+        }
+    },
+    "Morocco": {
+        "09-Mar-2026": {
+            "diesel": 0.916,
+            "gasoline": 1.036
+        }
+    },
+    "New Zealand": {
+        "09-Mar-2026": {
+            "diesel": 0.916,
+            "gasoline": 1.149
+        }
+    },
+    "Brazil": {
+        "09-Mar-2026": {
+            "diesel": 0.924,
+            "gasoline": 0.964
+        }
+    },
+    "Grenada": {
+        "09-Mar-2026": {
+            "diesel": 0.924,
+            "gasoline": 0.885
+        }
+    },
+    "Uruguay": {
+        "09-Mar-2026": {
+            "diesel": 0.927,
+            "gasoline": 1.223
+        }
+    },
+    "Nicaragua": {
+        "09-Mar-2026": {
+            "diesel": 0.927,
+            "gasoline": 1.055
+        }
+    },
+    "Vietnam": {
+        "09-Mar-2026": {
+            "diesel": 0.933,
+            "gasoline": 0.873
+        }
+    },
+    "Lesotho": {
+        "09-Mar-2026": {
+            "diesel": 0.933,
+            "gasoline": 0.845
+        }
+    },
+    "Ghana": {
+        "09-Mar-2026": {
+            "diesel": 0.949,
+            "gasoline": 1.003
+        }
+    },
+    "Peru": {
+        "09-Mar-2026": {
+            "diesel": 0.949,
+            "gasoline": 1.014
+        }
+    },
+    "Suriname": {
+        "09-Mar-2026": {
+            "diesel": 0.955,
+            "gasoline": 0.948
+        }
+    },
+    "Armenia": {
+        "09-Mar-2026": {
+            "diesel": 0.955,
+            "gasoline": 1.007
+        }
+    },
+    "Mongolia": {
+        "09-Mar-2026": {
+            "diesel": 0.959,
+            "gasoline": 1.09
+        }
+    },
+    "Zambia": {
+        "09-Mar-2026": {
+            "diesel": 0.959,
+            "gasoline": 1.086
+        }
+    },
+    "Burkina Faso": {
+        "09-Mar-2026": {
+            "diesel": 0.966,
+            "gasoline": 1.129
+        }
+    },
+    "Namibia": {
+        "09-Mar-2026": {
+            "diesel": 0.966,
+            "gasoline": 0.956
+        }
+    },
+    "Ivory Coast": {
+        "09-Mar-2026": {
+            "diesel": 0.972,
+            "gasoline": 1.103
+        }
+    },
+    "Pakistan": {
+        "09-Mar-2026": {
+            "diesel": 0.972,
+            "gasoline": 0.886
+        }
+    },
+    "Senegal": {
+        "09-Mar-2026": {
+            "diesel": 0.976,
+            "gasoline": 1.157
+        }
+    },
+    "Dominica": {
+        "09-Mar-2026": {
+            "diesel": 0.976,
+            "gasoline": 1.046
+        }
+    },
+    "Swaziland": {
+        "09-Mar-2026": {
+            "diesel": 0.976,
+            "gasoline": 0.948
+        }
+    },
+    "Botswana": {
+        "09-Mar-2026": {
+            "diesel": 0.976,
+            "gasoline": 0.906
+        }
+    },
+    "Togo": {
+        "09-Mar-2026": {
+            "diesel": 0.979,
+            "gasoline": 0.964
+        }
+    },
+    "Haiti": {
+        "09-Mar-2026": {
+            "diesel": 0.979,
+            "gasoline": 0.873
+        }
+    },
+    "Mozambique": {
+        "09-Mar-2026": {
+            "diesel": 0.983,
+            "gasoline": 1.017
+        }
+    },
+    "Jamaica": {
+        "09-Mar-2026": {
+            "diesel": 0.983,
+            "gasoline": 0.969
+        }
+    },
+    "Uganda": {
+        "09-Mar-2026": {
+            "diesel": 1.016,
+            "gasoline": 1.055
+        }
+    },
+    "South Korea": {
+        "09-Mar-2026": {
+            "diesel": 1.016,
+            "gasoline": 1.046
+        }
+    },
+    "Benin": {
+        "09-Mar-2026": {
+            "diesel": 1.019,
+            "gasoline": 0.979
+        }
+    },
+    "Kenya": {
+        "09-Mar-2026": {
+            "diesel": 1.019,
+            "gasoline": 1.09
+        }
+    },
+    "Cambodia": {
+        "09-Mar-2026": {
+            "diesel": 1.024,
+            "gasoline": 1.023
+        }
+    },
+    "Mauritius": {
+        "09-Mar-2026": {
+            "diesel": 1.024,
+            "gasoline": 1.007
+        }
+    },
+    "USA": {
+        "09-Mar-2026": {
+            "diesel": 1.049,
+            "gasoline": 0.735
+        }
+    },
+    "Mali": {
+        "09-Mar-2026": {
+            "diesel": 1.049,
+            "gasoline": 1.097
+        }
+    },
+    "Saint Lucia": {
+        "09-Mar-2026": {
+            "diesel": 1.05,
+            "gasoline": 1.017
+        }
+    },
+    "South Africa": {
+        "09-Mar-2026": {
+            "diesel": 1.05,
+            "gasoline": 0.969
+        }
+    },
+    "Bahamas": {
+        "09-Mar-2026": {
+            "diesel": 1.059,
+            "gasoline": 1.103
+        }
+    },
+    "Rwanda": {
+        "09-Mar-2026": {
+            "diesel": 1.059,
+            "gasoline": 1.068
+        }
+    },
+    "Cayman Islands": {
+        "09-Mar-2026": {
+            "diesel": 1.061,
+            "gasoline": 1.122
+        }
+    },
+    "Guinea": {
+        "09-Mar-2026": {
+            "diesel": 1.061,
+            "gasoline": 1.086
+        }
+    },
+    "Argentina": {
+        "09-Mar-2026": {
+            "diesel": 1.086,
+            "gasoline": 1.014
+        }
+    },
+    "Burundi": {
+        "09-Mar-2026": {
+            "diesel": 1.086,
+            "gasoline": 1.098
+        }
+    },
+    "Australia": {
+        "09-Mar-2026": {
+            "diesel": 1.096,
+            "gasoline": 1.023
+        }
+    },
+    "Malta": {
+        "09-Mar-2026": {
+            "diesel": 1.096,
+            "gasoline": 1.132
+        }
+    },
+    "Moldova": {
+        "09-Mar-2026": {
+            "diesel": 1.098,
+            "gasoline": 1.109
+        }
+    },
+    "Bolivia": {
+        "09-Mar-2026": {
+            "diesel": 1.098,
+            "gasoline": 0.729
+        }
+    },
+    "Cameroon": {
+        "09-Mar-2026": {
+            "diesel": 1.1,
+            "gasoline": 1.127
+        }
+    },
+    "Canada": {
+        "09-Mar-2026": {
+            "diesel": 1.1,
+            "gasoline": 1.014
+        }
+    },
+    "Turkey": {
+        "09-Mar-2026": {
+            "diesel": 1.117,
+            "gasoline": 1.097
+        }
+    },
+    "Seychelles": {
+        "09-Mar-2026": {
+            "diesel": 1.117,
+            "gasoline": 1.129
+        }
+    },
+    "Belize": {
+        "09-Mar-2026": {
+            "diesel": 1.118,
+            "gasoline": 1.188
+        }
+    },
+    "Bosnia & Herz.": {
+        "09-Mar-2026": {
+            "diesel": 1.118,
+            "gasoline": 1.098
+        }
+    },
+    "Laos": {
+        "09-Mar-2026": {
+            "diesel": 1.119,
+            "gasoline": 1.194
+        }
+    },
+    "Mexico": {
+        "09-Mar-2026": {
+            "diesel": 1.119,
+            "gasoline": 1.109
+        }
+    },
+    "Andorra": {
+        "09-Mar-2026": {
+            "diesel": 1.122,
+            "gasoline": 1.147
+        }
+    },
+    "Czech Republic": {
+        "09-Mar-2026": {
+            "diesel": 1.122,
+            "gasoline": 1.149
+        }
+    },
+    "N. Maced.": {
+        "09-Mar-2026": {
+            "diesel": 1.131,
+            "gasoline": 1.127
+        }
+    },
+    "Barbados": {
+        "09-Mar-2026": {
+            "diesel": 1.131,
+            "gasoline": 1.208
+        }
+    },
+    "Sierra Leone": {
+        "09-Mar-2026": {
+            "diesel": 1.135,
+            "gasoline": 1.157
+        }
+    },
+    "Bulgaria": {
+        "09-Mar-2026": {
+            "diesel": 1.135,
+            "gasoline": 1.132
+        }
+    },
+    "Poland": {
+        "09-Mar-2026": {
+            "diesel": 1.135,
+            "gasoline": 1.142
+        }
+    },
+    "Mayotte": {
+        "09-Mar-2026": {
+            "diesel": 1.135,
+            "gasoline": 1.241
+        }
+    },
+    "Slovakia": {
+        "09-Mar-2026": {
+            "diesel": 1.143,
+            "gasoline": 1.183
+        }
+    },
+    "Cyprus": {
+        "09-Mar-2026": {
+            "diesel": 1.143,
+            "gasoline": 1.142
+        }
+    },
+    "Montenegro": {
+        "09-Mar-2026": {
+            "diesel": 1.151,
+            "gasoline": 1.173
+        }
+    },
+    "Ukraine": {
+        "09-Mar-2026": {
+            "diesel": 1.151,
+            "gasoline": 1.147
+        }
+    },
+    "Croatia": {
+        "09-Mar-2026": {
+            "diesel": 1.153,
+            "gasoline": 1.183
+        }
+    },
+    "Hungary": {
+        "09-Mar-2026": {
+            "diesel": 1.153,
+            "gasoline": 1.173
+        }
+    },
+    "Zimbabwe": {
+        "09-Mar-2026": {
+            "diesel": 1.153,
+            "gasoline": 1.175
+        }
+    },
+    "Slovenia": {
+        "09-Mar-2026": {
+            "diesel": 1.153,
+            "gasoline": 1.173
+        }
+    },
+    "Estonia": {
+        "09-Mar-2026": {
+            "diesel": 1.156,
+            "gasoline": 1.188
+        }
+    },
+    "Iceland": {
+        "09-Mar-2026": {
+            "diesel": 1.156,
+            "gasoline": 1.173
+        }
+    },
+    "Wallis and Futuna": {
+        "09-Mar-2026": {
+            "diesel": 1.169,
+            "gasoline": 1.198
+        }
+    },
+    "Lithuania": {
+        "09-Mar-2026": {
+            "diesel": 1.169,
+            "gasoline": 1.175
+        }
+    },
+    "UK": {
+        "09-Mar-2026": {
+            "diesel": 1.176,
+            "gasoline": 1.196
+        }
+    },
+    "Serbia": {
+        "09-Mar-2026": {
+            "diesel": 1.176,
+            "gasoline": 1.194
+        }
+    },
+    "Romania": {
+        "09-Mar-2026": {
+            "diesel": 1.177,
+            "gasoline": 1.223
+        }
+    },
+    "Ireland": {
+        "09-Mar-2026": {
+            "diesel": 1.177,
+            "gasoline": 1.244
+        }
+    },
+    "Spain": {
+        "09-Mar-2026": {
+            "diesel": 1.182,
+            "gasoline": 1.234
+        }
+    },
+    "Greece": {
+        "09-Mar-2026": {
+            "diesel": 1.182,
+            "gasoline": 1.272
+        }
+    },
+    "Monaco": {
+        "09-Mar-2026": {
+            "diesel": 1.185,
+            "gasoline": 1.244
+        }
+    },
+    "Norway": {
+        "09-Mar-2026": {
+            "diesel": 1.185,
+            "gasoline": 1.295
+        }
+    },
+    "Luxembourg": {
+        "09-Mar-2026": {
+            "diesel": 1.187,
+            "gasoline": 1.226
+        }
+    },
+    "Portugal": {
+        "09-Mar-2026": {
+            "diesel": 1.187,
+            "gasoline": 1.264
+        }
+    },
+    "Latvia": {
+        "09-Mar-2026": {
+            "diesel": 1.189,
+            "gasoline": 1.208
+        }
+    },
+    "Netherlands": {
+        "09-Mar-2026": {
+            "diesel": 1.189,
+            "gasoline": 1.295
+        }
+    },
+    "San Marino": {
+        "09-Mar-2026": {
+            "diesel": 1.19,
+            "gasoline": 1.196
+        }
+    },
+    "Finland": {
+        "09-Mar-2026": {
+            "diesel": 1.19,
+            "gasoline": 1.272
+        }
+    },
+    "Austria": {
+        "09-Mar-2026": {
+            "diesel": 1.192,
+            "gasoline": 1.241
+        }
+    },
+    "C. Afr. Rep.": {
+        "09-Mar-2026": {
+            "diesel": 1.192,
+            "gasoline": 1.198
+        }
+    },
+    "Belgium": {
+        "09-Mar-2026": {
+            "diesel": 1.193,
+            "gasoline": 1.234
+        }
+    },
+    "Israel": {
+        "09-Mar-2026": {
+            "diesel": 1.193,
+            "gasoline": 1.295
+        }
+    },
+    "France": {
+        "09-Mar-2026": {
+            "diesel": 1.197,
+            "gasoline": 1.272
+        }
+    },
+    "Italy": {
+        "09-Mar-2026": {
+            "diesel": 1.197,
+            "gasoline": 1.264
+        }
+    },
+    "Sweden": {
+        "09-Mar-2026": {
+            "diesel": 1.199,
+            "gasoline": 1.226
+        }
+    },
+    "Albania": {
+        "09-Mar-2026": {
+            "diesel": 1.199,
+            "gasoline": 1.272
+        }
+    },
+    "Singapore": {
+        "09-Mar-2026": {
+            "diesel": 1.199,
+            "gasoline": 1.295
+        }
+    },
+    "Liechtenstein": {
+        "09-Mar-2026": {
+            "diesel": 1.199,
+            "gasoline": 1.28
+        }
+    },
+    "Switzerland": {
+        "09-Mar-2026": {
+            "diesel": 1.199,
+            "gasoline": 1.28
+        }
+    },
+    "Germany": {
+        "09-Mar-2026": {
+            "diesel": 1.199,
+            "gasoline": 1.295
+        }
+    },
+    "Denmark": {
+        "09-Mar-2026": {
+            "diesel": 1.202,
+            "gasoline": 1.295
+        }
+    },
+    "Malawi": {
+        "09-Mar-2026": {
+            "diesel": 1.202,
+            "gasoline": 1.302
+        }
+    },
+    "Hong Kong": {
+        "09-Mar-2026": {
+            "diesel": 1.208,
+            "gasoline": 1.302
+        }
+    },
+    "Iraq": {
+        "09-Mar-2026": {
+            "diesel": null,
+            "gasoline": 0.428
+        }
+    }
+}
