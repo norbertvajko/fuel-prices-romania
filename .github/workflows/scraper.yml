@@ -46,6 +46,10 @@ jobs:
           # Commit and push if there are changes
           if [[ -n "$(git status --porcelain)" ]]; then
             git commit -m "Daily fuel update"
+
+            # Pull latest changes to avoid non-fast-forward errors
+            git pull --rebase origin main
+
             git push origin main
           else
             echo "No changes to commit"
