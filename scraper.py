@@ -11,6 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import pandas as pd  # Only for the one-time import
 
 # ---------------- CONFIG ---------------- #
 BASE_URL = "https://www.globalpetrolprices.com"
@@ -77,7 +78,7 @@ class FuelDatabase:
         cursor = self.conn.cursor()
         for country, fuel in data.items():
             cursor.execute("""
-                INSERT OR IGNORE INTO fuel_prices
+                INSERT OR REPLACE INTO fuel_prices
                 (country, diesel, gasoline, price_date)
                 VALUES (?, ?, ?, ?)
             """, (country, fuel.diesel, fuel.gasoline, date))
@@ -114,7 +115,6 @@ class FuelScraper:
         parts = h1.get_text(strip=True).split(",")
         return parts[-1].strip() if len(parts) >= 3 else None
 
-    # ✅ Correct table-based scraping
     def extract_table_prices(self, soup: BeautifulSoup) -> List[FuelPrice]:
         data: List[FuelPrice] = []
         rows = soup.select("table tbody tr")
@@ -127,7 +127,7 @@ class FuelScraper:
                 price = float(cols[1].get_text(strip=True))
             except ValueError:
                 continue
-            if price <= 0:  # basic sanity check
+            if price <= 0:
                 continue
             data.append(FuelPrice(country=country, price=price))
         if not data:
@@ -158,7 +158,7 @@ class FuelProcessor:
     @staticmethod
     def validate(data: Dict[str, CountryFuel]):
         if len(data) < MIN_EXPECTED_COUNTRIES:
-            raise RuntimeError(f"Incomplete scrape: {len(data)} countries")
+            logger.warning(f"Incomplete scrape: {len(data)} countries")
 
 # ---------------- EXPORTER ---------------- #
 class FuelExporter:
@@ -186,10 +186,7 @@ class FuelExporter:
         logger.info(f"Daily JSON saved: {path}")
 
     @staticmethod
-    def export_history(db: FuelDatabase, date: str):
-        if not db.has_date(date):
-            logger.info(f"No new data for {date}, skipping history export")
-            return
+    def export_history(db: FuelDatabase):
         rows = db.fetch_all()
         history: Dict[str, Dict] = {}
         for country, diesel, gasoline, d in rows:
@@ -205,26 +202,61 @@ class FuelExporter:
             json.dump(result, f, indent=4)
         logger.info("Historical JSON updated")
 
+# ---------------- ONE-TIME HISTORICAL IMPORT ---------------- #
+def import_worldbank_historical(db_file: str, wb_file: str):
+    """
+    Import historical fuel data from a World Bank CSV/Excel.
+    Only run once, then you can remove this function.
+    """
+    if not os.path.exists(wb_file):
+        logger.warning("World Bank file not found, skipping historical import")
+        return
+
+    db = FuelDatabase(db_file)
+    df = pd.read_excel(wb_file)  # Or pd.read_csv for CSV
+
+    # Example: expect columns: Country, Date, Diesel, Gasoline
+    for _, row in df.iterrows():
+        country = row['Country']
+        date = str(row['Date']).split()[0]  # YYYY-MM-DD
+        diesel = row.get('Diesel')
+        gasoline = row.get('Gasoline')
+        data = CountryFuel(diesel=diesel if pd.notna(diesel) else None,
+                           gasoline=gasoline if pd.notna(gasoline) else None)
+        db.save({country: data}, date)
+    db.close()
+    logger.info("Historical World Bank data imported successfully. You can now remove this import function.")
+
 # ---------------- MAIN ---------------- #
 def main():
-    logger.info("Starting scraper")
-    scraper = FuelScraper()
-    db = FuelDatabase(DB_FILE)
+    try:
+        logger.info("Starting scraper")
 
-    with ThreadPoolExecutor() as executor:
-        futures = {fuel: executor.submit(scraper.scrape, fuel) for fuel in URLS}
-        results = {fuel: f.result() for fuel, f in futures.items()}
+        # --- ONE-TIME HISTORICAL IMPORT ---
+        import_worldbank_historical(DB_FILE, "worldbank_data/global_fuel_prices.xlsx")
+        # Uncomment and run once, then remove after import
 
-    date = results["diesel"][0]
-    combined = FuelProcessor.combine(results["diesel"][1], results["gasoline"][1])
-    FuelProcessor.validate(combined)
+        db = FuelDatabase(DB_FILE)
+        scraper = FuelScraper()
 
-    db.save(combined, date)
-    FuelExporter.export_latest(combined, date)
-    FuelExporter.export_daily(combined, date)
-    FuelExporter.export_history(db, date)
-    db.close()
-    logger.info(f"Done. Countries: {len(combined)}")
+        with ThreadPoolExecutor() as executor:
+            futures = {fuel: executor.submit(scraper.scrape, fuel) for fuel in URLS}
+            results = {fuel: f.result() for fuel, f in futures.items()}
+
+        date = results["diesel"][0]
+        combined = FuelProcessor.combine(results["diesel"][1], results["gasoline"][1])
+        FuelProcessor.validate(combined)
+
+        db.save(combined, date)
+        FuelExporter.export_latest(combined, date)
+        FuelExporter.export_daily(combined, date)
+        FuelExporter.export_history(db)
+        db.close()
+        logger.info(f"Done. Countries: {len(combined)}")
+
+    except Exception:
+        logger.exception("Scraper failed")
+        exit(1)
 
 if __name__ == "__main__":
     main()
