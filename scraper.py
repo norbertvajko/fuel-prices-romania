@@ -12,7 +12,6 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-
 # ---------------- CONFIG ---------------- #
 BASE_URL = "https://www.globalpetrolprices.com"
 URLS = {
@@ -28,14 +27,9 @@ ALL_HISTORY_FILE = "fuel_prices_all.json"
 REQUEST_TIMEOUT = 30
 MIN_EXPECTED_COUNTRIES = 100
 
-
 # ---------------- LOGGING ---------------- #
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
-
 
 # ---------------- HTTP SESSION ---------------- #
 def create_session() -> requests.Session:
@@ -47,9 +41,7 @@ def create_session() -> requests.Session:
     session.mount("https://", adapter)
     return session
 
-
 session = create_session()
-
 
 # ---------------- DATA MODELS ---------------- #
 @dataclass
@@ -57,12 +49,10 @@ class FuelPrice:
     country: str
     price: float
 
-
 @dataclass
 class CountryFuel:
     diesel: float | None = None
     gasoline: float | None = None
-
 
 # ---------------- DATABASE ---------------- #
 class FuelDatabase:
@@ -85,14 +75,12 @@ class FuelDatabase:
 
     def save(self, data: Dict[str, CountryFuel], date: str):
         cursor = self.conn.cursor()
-
         for country, fuel in data.items():
             cursor.execute("""
                 INSERT OR IGNORE INTO fuel_prices
                 (country, diesel, gasoline, price_date)
                 VALUES (?, ?, ?, ?)
             """, (country, fuel.diesel, fuel.gasoline, date))
-
         self.conn.commit()
 
     def fetch_all(self) -> List[Tuple]:
@@ -112,7 +100,6 @@ class FuelDatabase:
     def close(self):
         self.conn.close()
 
-
 # ---------------- SCRAPER ---------------- #
 class FuelScraper:
     def fetch(self, url: str) -> BeautifulSoup:
@@ -127,55 +114,45 @@ class FuelScraper:
         parts = h1.get_text(strip=True).split(",")
         return parts[-1].strip() if len(parts) >= 3 else None
 
-    def extract_prices(self, soup: BeautifulSoup) -> List[float]:
-        prices = []
-        for div in soup.select("#graphic div div"):
+    # ✅ Correct table-based scraping
+    def extract_table_prices(self, soup: BeautifulSoup) -> List[FuelPrice]:
+        data: List[FuelPrice] = []
+        rows = soup.select("table tbody tr")
+        for row in rows:
+            cols = row.find_all("td")
+            if len(cols) < 2:
+                continue
+            country = cols[0].get_text(strip=True).replace("*", "")
             try:
-                prices.append(float(div.get_text(strip=True)))
+                price = float(cols[1].get_text(strip=True))
             except ValueError:
                 continue
-        return prices
-
-    def extract_countries(self, soup: BeautifulSoup) -> List[str]:
-        return [
-            a.get_text(strip=True).replace("*", "")
-            for a in soup.select("a.graph_outside_link")
-        ]
+            if price <= 0:  # basic sanity check
+                continue
+            data.append(FuelPrice(country=country, price=price))
+        if not data:
+            raise RuntimeError("No valid data extracted from table")
+        return data
 
     def scrape(self, fuel_type: str) -> Tuple[str, List[FuelPrice]]:
         soup = self.fetch(URLS[fuel_type])
         date = self.extract_date(soup)
-
-        countries = self.extract_countries(soup)
-        prices = self.extract_prices(soup)
-
-        data = [
-            FuelPrice(country=c, price=p)
-            for c, p in zip(countries, prices)
-        ]
-
+        data = self.extract_table_prices(soup)
+        logger.info(f"{fuel_type.capitalize()}: scraped {len(data)} countries")
         return date, data
-
 
 # ---------------- PROCESSOR ---------------- #
 class FuelProcessor:
     @staticmethod
-    def combine(
-        diesel: List[FuelPrice],
-        gasoline: List[FuelPrice]
-    ) -> Dict[str, CountryFuel]:
-
+    def combine(diesel: List[FuelPrice], gasoline: List[FuelPrice]) -> Dict[str, CountryFuel]:
         combined: Dict[str, CountryFuel] = {}
-
         for d in diesel:
             combined[d.country] = CountryFuel(diesel=d.price)
-
         for g in gasoline:
             if g.country not in combined:
                 combined[g.country] = CountryFuel(gasoline=g.price)
             else:
                 combined[g.country].gasoline = g.price
-
         return combined
 
     @staticmethod
@@ -183,21 +160,15 @@ class FuelProcessor:
         if len(data) < MIN_EXPECTED_COUNTRIES:
             raise RuntimeError(f"Incomplete scrape: {len(data)} countries")
 
-
 # ---------------- EXPORTER ---------------- #
 class FuelExporter:
-
     @staticmethod
     def export_latest(data: Dict[str, CountryFuel], date: str):
         result = {
             "lastUpdate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "priceDate": date,
-            "countries": {
-                c: {"diesel": f.diesel, "gasoline": f.gasoline}
-                for c, f in data.items()
-            }
+            "countries": {c: {"diesel": f.diesel, "gasoline": f.gasoline} for c, f in data.items()}
         }
-
         with open(LATEST_FILE, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=4)
 
@@ -205,20 +176,13 @@ class FuelExporter:
     def export_daily(data: Dict[str, CountryFuel], date: str):
         os.makedirs(JSON_FOLDER, exist_ok=True)
         safe_date = date.replace("/", "-").replace(" ", "_")
-
         path = os.path.join(JSON_FOLDER, f"fuel_prices_{safe_date}.json")
-
         FuelExporter.export_latest(data, date)
-
         with open(path, "w", encoding="utf-8") as f:
             json.dump({
                 "priceDate": date,
-                "countries": {
-                    c: {"diesel": f.diesel, "gasoline": f.gasoline}
-                    for c, f in data.items()
-                }
+                "countries": {c: {"diesel": f.diesel, "gasoline": f.gasoline} for c, f in data.items()}
             }, f, indent=4)
-
         logger.info(f"Daily JSON saved: {path}")
 
     @staticmethod
@@ -226,69 +190,41 @@ class FuelExporter:
         if not db.has_date(date):
             logger.info(f"No new data for {date}, skipping history export")
             return
-
         rows = db.fetch_all()
-
         history: Dict[str, Dict] = {}
-
         for country, diesel, gasoline, d in rows:
             if country not in history:
-                history[country] = {
-                    "diesel": {},
-                    "gasoline": {}
-                }
-
+                history[country] = {"diesel": {}, "gasoline": {}}
             if diesel is not None:
                 history[country]["diesel"][d] = diesel
-
             if gasoline is not None:
                 history[country]["gasoline"][d] = gasoline
-
-        result = {
-            "lastUpdate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-            "countries": history
-        }
-
+        result = {"lastUpdate": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                  "countries": history}
         with open(ALL_HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=4)
-
         logger.info("Historical JSON updated")
-
 
 # ---------------- MAIN ---------------- #
 def main():
     logger.info("Starting scraper")
-
     scraper = FuelScraper()
     db = FuelDatabase(DB_FILE)
 
     with ThreadPoolExecutor() as executor:
-        futures = {
-            fuel: executor.submit(scraper.scrape, fuel)
-            for fuel in URLS
-        }
-
+        futures = {fuel: executor.submit(scraper.scrape, fuel) for fuel in URLS}
         results = {fuel: f.result() for fuel, f in futures.items()}
 
     date = results["diesel"][0]
-
-    combined = FuelProcessor.combine(
-        results["diesel"][1],
-        results["gasoline"][1]
-    )
-
+    combined = FuelProcessor.combine(results["diesel"][1], results["gasoline"][1])
     FuelProcessor.validate(combined)
 
     db.save(combined, date)
-
     FuelExporter.export_latest(combined, date)
     FuelExporter.export_daily(combined, date)
     FuelExporter.export_history(db, date)
-
     db.close()
-
     logger.info(f"Done. Countries: {len(combined)}")
-
 
 if __name__ == "__main__":
     main()
