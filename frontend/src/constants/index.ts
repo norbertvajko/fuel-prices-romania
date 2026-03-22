@@ -25,8 +25,13 @@ export const DEFAULT_SORT: PriceSort = "cheapest_motorina";
 // All fuel types
 export const ALL_FUELS: FuelType[] = ["benzina", "motorina", "gpl", "electric"];
 
-// API base URL
-export const API_URL = "http://localhost:8000";
+const BASE_API_URL =
+  import.meta.env.MODE === "development"
+    ? import.meta.env.VITE_API_DEV
+    : import.meta.env.VITE_API_PROD;
 
-// API search endpoint
-export const API_SEARCH_URL = `${API_URL}/search`;
+// Export main API URL
+export const API_URL = BASE_API_URL;
+
+// Export search endpoint
+export const API_SEARCH_URL = `${BASE_API_URL}/search`;

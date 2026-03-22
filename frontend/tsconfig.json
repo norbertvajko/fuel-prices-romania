@@ -1,8 +1,8 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-    
-  ]
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "types": ["vite/client"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "src/constants/index.ts"]
 }
