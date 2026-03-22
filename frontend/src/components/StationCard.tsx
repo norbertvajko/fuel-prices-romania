@@ -2,31 +2,13 @@ import { MapPin, Navigation, Fuel, TrendingDown, Clock, MapPinned, ShoppingBag, 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { capitalizeFirst } from "../lib/utilts";
 import { useState } from "react";
-
-interface Price {
-  fuel: string;
-  price: number | null;
-}
-
-interface Service {
-  name: string;
-  logo: string;
-}
+import type { Station } from "../types";
 
 interface StationCardProps {
-  name: string;
-  network: string;
-  networkLogo?: string;
-  prices: Price[];
-  lat: number;
-  lon: number;
+  station: Station;
   cheapestPrice: number;
   isOverallCheapest: boolean;
   index: number;
-  updatedate?: string;
-  address?: string;
-  services?: Service[];
-  contactDetails?: string;
 }
 
 const FUEL_COLORS: Record<string, string> = {
@@ -89,20 +71,12 @@ const SERVICE_COLORS: Record<string, string> = {
 };
 
 const StationCard = ({
-  name,
-  network,
-  networkLogo,
-  prices,
-  lat,
-  lon,
+  station,
   cheapestPrice,
   isOverallCheapest,
   index,
-  updatedate,
-  address,
-  services = [],
-  contactDetails,
 }: StationCardProps) => {
+  const { name, network, networkLogo, prices, lat, lon, updatedate, address, services = [], contactDetails } = station;
   const stationPrices = FUEL_ORDER.map(fuelName => {
     const found = prices.find(p => p.fuel === fuelName);
     return { fuel: fuelName, price: found?.price ?? null };

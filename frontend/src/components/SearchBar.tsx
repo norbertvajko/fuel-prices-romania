@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Search, LocateFixed, MapPin, Navigation } from "lucide-react";
-import { Button } from "./ui/button";
+import { Search, MapPin, Navigation } from "lucide-react";
 
 interface SearchBarProps {
   onSearchCity: (city: string) => void;

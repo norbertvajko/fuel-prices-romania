@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, MapPin, Navigation, Fuel, Droplets, Flame, Zap, X, ChevronDown, ArrowUpDown, SlidersHorizontal } from "lucide-react";
-
-type SearchMode = "city" | "address";
-type FuelType = "benzina" | "motorina" | "gpl" | "electric";
-type PriceSort = "cheapest" | "expensive" | "cheapest_motorina" | "expensive_motorina" | "cheapest_benzina" | "expensive_benzina" | "cheapest_gpl" | "expensive_gpl";
+import { Search, MapPin, Navigation, Fuel, X, ChevronDown, ArrowUpDown, SlidersHorizontal } from "lucide-react";
+import type { FuelType, PriceSort, SearchMode } from "../types";
+import { FUEL_OPTIONS, SORT_OPTIONS, DEFAULT_SORT, ALL_FUELS } from "../constants";
 
 interface FuelSearchProps {
   onSearchCity: (city: string, fuels: FuelType[], sort: PriceSort) => void;
@@ -14,27 +12,11 @@ interface FuelSearchProps {
   hasSearched: boolean;
 }
 
-const fuelTypes: { id: FuelType; label: string; icon: typeof Droplets; color: string; activeBg: string }[] = [
-  { id: "benzina", label: "Benzină", icon: Flame, color: "text-amber-600", activeBg: "bg-amber-50 border-amber-200 text-amber-700" },
-  { id: "motorina", label: "Motorină", icon: Droplets, color: "text-sky-600", activeBg: "bg-sky-50 border-sky-200 text-sky-700" },
-  { id: "gpl", label: "GPL", icon: Zap, color: "text-emerald-600", activeBg: "bg-emerald-50 border-emerald-200 text-emerald-700" },
-  { id: "electric", label: "Electric", icon: Fuel, color: "text-purple-600", activeBg: "bg-purple-50 border-purple-200 text-purple-700" },
-];
-
-const sortOptions: { id: PriceSort; label: string }[] = [
-  { id: "cheapest_motorina", label: "Cea mai ieftină Motorină" },
-  { id: "expensive_motorina", label: "Cea mai scumpă Motorină" },
-  { id: "cheapest_benzina", label: "Cea mai ieftină Benzină" },
-  { id: "expensive_benzina", label: "Cea mai scumpă Benzină" },
-  { id: "cheapest_gpl", label: "Cel mai ieftin GPL" },
-  { id: "expensive_gpl", label: "Cel mai scump GPL" },
-];
-
 const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSearch, isLoading, hasSearched }: FuelSearchProps) => {
   const [mode, setMode] = useState<SearchMode>("city");
   const [query, setQuery] = useState("");
-  const [selectedFuels, setSelectedFuels] = useState<Set<FuelType>>(new Set(["benzina", "motorina", "gpl", "electric"]));
-  const [selectedSort, setSelectedSort] = useState<PriceSort>("cheapest_motorina");
+  const [selectedFuels, setSelectedFuels] = useState<Set<FuelType>>(new Set(ALL_FUELS));
+  const [selectedSort, setSelectedSort] = useState<PriceSort>(DEFAULT_SORT);
   const [isFocused, setIsFocused] = useState(false);
   const [showFuelDropdown, setShowFuelDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -69,18 +51,6 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
 
   const getFuelArray = (): FuelType[] => {
     return Array.from(selectedFuels);
-  };
-
-  const getSelectedFuelLabels = (): string => {
-    // Show selected fuels if not all are selected
-    if (selectedFuels.size < fuelTypes.length && selectedFuels.size > 0) {
-      const labels = fuelTypes
-        .filter(f => selectedFuels.has(f.id))
-        .map(f => f.label);
-      return labels.join(", ");
-    }
-    // Show "Carburanti" when all fuels are selected or none
-    return "Carburanti";
   };
 
   const handleSearch = () => {
@@ -163,7 +133,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               {/* Dropdown Menu */}
               {showFuelDropdown && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-card border rounded-lg shadow-lg p-2 z-50">
-                  {fuelTypes.map(({ id, label, icon: Icon, color, activeBg }) => {
+                  {FUEL_OPTIONS.map(({ id, label, icon: Icon, color, activeBg }) => {
                     const active = selectedFuels.has(id);
                     return (
                       <button
@@ -196,14 +166,14 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 className="h-11 px-3 flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg py-1.5 hover:bg-muted transition-colors active:scale-[0.97]"
               >
                 <ArrowUpDown className="w-3.5 h-3.5" />
-                <span className="text-muted-foreground">{selectedSort === "cheapest_motorina" ? "Sortare" : sortOptions.find(s => s.id === selectedSort)?.label}</span>
+                <span className="text-muted-foreground">{selectedSort === "cheapest_motorina" ? "Sortare" : SORT_OPTIONS.find(s => s.id === selectedSort)?.label}</span>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showSortDropdown ? "rotate-180" : ""}`} />
               </button>
 
               {/* Sort Dropdown Menu */}
               {showSortDropdown && (
                 <div className="absolute top-full right-0 mt-2 w-56 bg-card border rounded-lg shadow-lg p-2 z-50">
-                  {sortOptions.map(({ id, label }) => {
+                  {SORT_OPTIONS.map(({ id, label }) => {
                     const active = selectedSort === id;
                     return (
                       <button
@@ -377,7 +347,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
 
         {/* Fuel Type Chips */}
         <div className="flex justify-center gap-2">
-          {fuelTypes.map(({ id, label, icon: Icon, color, activeBg }) => {
+          {FUEL_OPTIONS.map(({ id, label, icon: Icon, color, activeBg }) => {
             const active = selectedFuels.has(id);
             return (
               <button

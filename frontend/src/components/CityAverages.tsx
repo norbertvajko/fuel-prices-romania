@@ -1,16 +1,7 @@
 import { TrendingDown, TrendingUp, MapPin, Clock } from "lucide-react";
 import { FUEL_LABELS, FUEL_COLORS, type FuelType } from "../data/stations";
 import { capitalizeFirst } from "../lib/utilts";
-
-interface Price {
-    fuel: string;
-    price: number;
-}
-
-interface Station {
-    name: string;
-    prices: Price[];
-}
+import type { Station, Price } from "../types";
 
 interface CityAveragesProps {
     city: string;
