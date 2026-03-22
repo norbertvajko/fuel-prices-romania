@@ -27,8 +27,8 @@ export const ALL_FUELS: FuelType[] = ["benzina", "motorina", "gpl", "electric"];
 
 const BASE_API_URL =
   import.meta.env.MODE === "development"
-    ? import.meta.env.VITE_API_DEV
-    : import.meta.env.VITE_API_PROD;
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_PROD_API_URL;
 
 // Export main API URL
 export const API_URL = BASE_API_URL;

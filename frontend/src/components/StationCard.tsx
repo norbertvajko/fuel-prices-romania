@@ -127,8 +127,8 @@ const StationCard = ({
         <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-r-full bg-success" />
       )}
 
-      <div className="p-6 pb-5">
-        <div className="flex items-start justify-between gap-4">
+      <div className="p-4 sm:p-6 pb-5">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h3 className="font-bold text-foreground text-lg leading-snug tracking-tight">
@@ -278,41 +278,41 @@ const StationCard = ({
       </div>
 
       {/* Footer actions */}
-      <div className="flex items-center gap-2 border-t border-border/40 bg-muted/20 px-6 py-3">
+      <div className="flex flex-wrap gap-2 border-t border-border/40 bg-muted/20 px-4 py-3 sm:px-6">
         <a
           href={`https://www.google.com/maps?q=${lat},${lon}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
         >
           <MapPin className="h-4 w-4" />
-          Hartă
+          <span className="hidden sm:inline">Hartă</span>
         </a>
         <a
           href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
         >
           <Navigation className="h-4 w-4" />
-          Navigare
+          <span className="hidden sm:inline">Navigare</span>
         </a>
         {phone && (
           <a
             href={`tel:${phone}`}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
           >
             <Phone className="h-4 w-4" />
-            Sună
+            <span className="hidden sm:inline">Sună</span>
           </a>
         )}
         {email && (
           <a
             href={`mailto:${email}`}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
           >
             <Mail className="h-4 w-4" />
-            Email
+            <span className="hidden sm:inline">Email</span>
           </a>
         )}
       </div>

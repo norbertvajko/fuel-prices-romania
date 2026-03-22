@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import FuelSearch from "../components/FuelSearch";
 import CityAverages from "../components/CityAverages";
@@ -6,6 +5,7 @@ import SkeletonCard from "../components/SkeletonCard";
 import StationCard from "../components/StationCard";
 import type { Station, FuelType, PriceSort, SearchResult } from "../types";
 import { API_SEARCH_URL, DEFAULT_SORT } from "../constants";
+import { useCallback, useState } from "react";
 
 // Calculate distance between two coordinates in km (Haversine formula)
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -140,17 +140,51 @@ const Index = () => {
 
   const handleSearchNearby = (fuels: FuelType[], sort: PriceSort) => {
     if (!navigator.geolocation) {
-      setStatusMessage({ type: "error", text: "❌ Geolocalizarea nu este suportată." });
+      setStatusMessage({ type: "error", text: "❌ Geolocalizarea nu este suportată de acest dispozitiv." });
       return;
     }
+    
     const { fuelParam, sortParam } = buildSearchQuery(fuels, sort);
+    
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const query = `lat=${pos.coords.latitude}&lon=${pos.coords.longitude}${fuelParam}${sortParam}`;
         setSearchParams(new URLSearchParams(query));
         doSearch(query);
       },
-      () => setStatusMessage({ type: "error", text: "❌ Nu s-a putut obține locația." })
+      (error) => {
+        let message = "❌ Nu s-a putut obține locația.";
+        let showSettingsHint = false;
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            message = "📍 Accesul la locație a fost refuzat. Te rog să activezi locația în setările browser-ului.";
+            showSettingsHint = true;
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message = "❌ Locația nu este disponibilă. Verifică dacă GPS-ul este activat pe dispozitiv.";
+            showSettingsHint = true;
+            break;
+          case error.TIMEOUT:
+            message = "⏱️ Timpul de așteptare pentru locație a expirat. Încearcă din nou.";
+            break;
+        }
+        
+        setStatusMessage({ type: "error", text: message });
+        
+        // Show settings hint after a delay on mobile
+        if (showSettingsHint) {
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          if (isMobile) {
+            setTimeout(() => {
+              setStatusMessage({ 
+                type: "info", 
+                text: "📱 Ghid mobil: Setări → Confidențialitate → Servicii Locație → Browser"
+              });
+            }, 4000);
+          }
+        }
+      }
     );
   };
 
@@ -177,7 +211,7 @@ const Index = () => {
         hasSearched={hasSearched}
       />
 
-      <main className={`max-w-6xl mx-auto px-4 py-6 space-y-5 ${hasSearched ? "pt-4" : ""}`}>
+      <main className={`max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 ${hasSearched ? "pt-3 sm:pt-4" : ""}`}>
         {statusMessage && !isLoading && (
           <p className={`text-center text-sm font-medium ${statusMessage.type === "error" ? "text-destructive" : "text-muted-foreground"}`}>
             {statusMessage.text}
@@ -189,14 +223,14 @@ const Index = () => {
         )}
 
         {isLoading && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-3 py-6">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-6">
               <div className="flex gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
               </div>
-              <p className="text-sm font-medium text-muted-foreground">Se caută stații…</p>
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Se caută stații…</p>
             </div>
             {[...Array(3)].map((_, i) => (
               <SkeletonCard key={i} />
@@ -205,7 +239,7 @@ const Index = () => {
         )}
 
         {!isLoading && stations.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {stations.map((s, i) => {
               const stationPrices = s.prices || [];
               const cheapestPrice = stationPrices.length > 0 ? Math.min(...stationPrices.map((p) => p.price)) : 0;

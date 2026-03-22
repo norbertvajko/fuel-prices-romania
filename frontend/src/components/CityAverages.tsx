@@ -65,7 +65,7 @@ const CityAverages = ({ city, stations }: CityAveragesProps) => {
     return (
         <div className="rounded-xl bg-card border shadow-sm overflow-hidden animate-fade-in-up">
             {/* Header strip */}
-            <div className="bg-primary px-5 py-3 flex items-center justify-between">
+            <div className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                 <div className="flex items-center gap-2 text-primary-foreground">
                     <MapPin className="w-4 h-4" />
                     <span className="font-semibold text-sm tracking-wide">
@@ -79,7 +79,7 @@ const CityAverages = ({ city, stations }: CityAveragesProps) => {
             </div>
 
             {/* Price cards */}
-            <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
                 {fuelAverages.map(({ type, avg, min, max }) => (
                     <div
                         key={type}

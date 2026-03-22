@@ -86,8 +86,20 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Custom breakpoint for extra small screens */
+@theme {
+  --breakpoint-xs: 30rem; /* 480px - for very small phones */
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+/* Mobile-first base styles */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
   }
 }
