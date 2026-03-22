@@ -25,10 +25,10 @@ export const DEFAULT_SORT: PriceSort = "cheapest_motorina";
 // All fuel types
 export const ALL_FUELS: FuelType[] = ["benzina", "motorina", "gpl", "electric"];
 
-const BASE_API_URL =
-  import.meta.env.MODE === "development"
-    ? import.meta.env.VITE_DEV_API_URL
-    : import.meta.env.VITE_PROD_API_URL;
+// const BASE_API_URL =
+//   import.meta.env.MODE === "development"
+//     ? import.meta.env.VITE_DEV_API_URL
+//     : import.meta.env.VITE_PROD_API_URL;
 
 // Export main API URL
 export const API_URL = "https://fuel-prices-romania.onrender.com";
