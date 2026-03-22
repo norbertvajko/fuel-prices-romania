@@ -31,7 +31,6 @@ const BASE_API_URL =
     : import.meta.env.VITE_PROD_API_URL;
 
 // Export main API URL
-export const API_URL = BASE_API_URL;
-
+export const API_URL = "https://fuel-prices-romania.onrender.com";
 // Export search endpoint
 export const API_SEARCH_URL = `${BASE_API_URL}/search`;
