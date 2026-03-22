@@ -33,4 +33,4 @@ const BASE_API_URL =
 // Export main API URL
 export const API_URL = "https://fuel-prices-romania.onrender.com";
 // Export search endpoint
-export const API_SEARCH_URL = `${BASE_API_URL}/search`;
+export const API_SEARCH_URL = `https://fuel-prices-romania.onrender.com/search`;
