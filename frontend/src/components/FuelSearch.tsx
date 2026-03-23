@@ -109,7 +109,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 type="button"
                 onClick={handleSearch}
                 disabled={isSearchDisabled}
-                className="h-10 px-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 disabled:opacity-50"
+                className="h-10 px-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
               >
                 Caută
               </button>
@@ -124,7 +124,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                   className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-xs text-muted-foreground border hover:bg-muted"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
-                  Filtre
+                  Filtre{selectedFuels.size < ALL_FUELS.length && <span className="text-primary"> ({selectedFuels.size})</span>}
                 </button>
                 {showFuelDropdown && (
                   <div className="absolute top-full left-0 mt-2 w-48 bg-card border rounded-lg shadow-lg p-2 z-50">
@@ -154,7 +154,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                   className="h-9 px-3 flex items-center gap-1 text-xs text-muted-foreground border rounded-lg hover:bg-muted"
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
-                  Sortare
+                  Sortare{selectedSort !== DEFAULT_SORT && <span className="text-primary"> •</span>}
                 </button>
                 {showSortDropdown && (
                   <div className="absolute top-full left-0 mt-2 w-56 bg-card border rounded-lg shadow-lg p-2 z-50">
@@ -181,7 +181,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 type="button"
                 onClick={handleNearbyClick}
                 disabled={isLoading}
-                className="h-9 px-3 flex items-center gap-1.5 text-xs text-muted-foreground border rounded-lg hover:bg-muted"
+                className="h-9 px-3 flex items-center gap-1.5 text-xs text-muted-foreground border rounded-lg hover:bg-muted cursor-pointer"
               >
                 <Navigation className="w-4 h-4" />
                 Aproape
@@ -232,7 +232,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                   className="h-11 px-3 rounded-lg flex items-center gap-1.5 text-sm text-muted-foreground border py-1.5 hover:bg-muted"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
-                  Filtre
+                  Filtre{selectedFuels.size < ALL_FUELS.length && <span className="text-primary"> ({selectedFuels.size})</span>}
                 </button>
                 {showFuelDropdown && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-card border rounded-lg shadow-lg p-2 z-50">
@@ -245,6 +245,11 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                       >
                         <Icon className={`w-3.5 h-3.5 ${selectedFuels.has(id) ? color : ""}`} />
                         {label}
+                        {selectedFuels.has(id) && (
+                          <svg className="w-4 h-4 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -259,6 +264,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
                   <span>{selectedSort === "cheapest_motorina" ? "Sortare" : SORT_OPTIONS.find(s => s.id === selectedSort)?.label}</span>
+                  {selectedSort !== DEFAULT_SORT && <span className="text-primary"> •</span>}
                   <ChevronDown className={`w-4 h-4 transition-transform ${showSortDropdown ? "rotate-180" : ""}`} />
                 </button>
                 {showSortDropdown && (
@@ -271,6 +277,11 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium ${selectedSort === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
                       >
                         {label}
+                        {selectedSort === id && (
+                          <svg className="w-4 h-4 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -282,7 +293,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 type="button"
                 onClick={handleNearbyClick}
                 disabled={isLoading}
-                className="h-11 px-3 flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg py-1.5 hover:bg-muted"
+                className="h-11 px-3 flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg py-1.5 hover:bg-muted cursor-pointer"
               >
                 <Navigation className="w-4 h-4" />
                 <span className="hidden md:inline">In apropiere</span>
@@ -293,7 +304,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 type="button"
                 onClick={handleSearch}
                 disabled={isSearchDisabled}
-                className="h-11 px-6 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 disabled:opacity-50"
+                className="h-11 px-6 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
               >
                 Caută
               </button>

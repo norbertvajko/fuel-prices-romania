@@ -44,6 +44,8 @@ export interface SearchResult {
   count: number;
   city?: string;
   error?: string;
+  cached?: boolean;
+  last_updated?: string;
 }
 
 // Search mode

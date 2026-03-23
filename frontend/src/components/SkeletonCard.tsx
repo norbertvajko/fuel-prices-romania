@@ -3,10 +3,10 @@ const SkeletonCard = () => (
     {/* Left border accent placeholder */}
     <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-r-full bg-muted" />
 
-    <div className="p-6 pb-5">
+    <div className="p-4 sm:p-6 pb-5">
       {/* Header: Title + Network + Address */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 space-y-2">
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
           {/* Title and network badge */}
           <div className="flex items-center gap-2.5 flex-wrap">
             <div className="h-6 w-40 rounded bg-muted" />
@@ -16,13 +16,13 @@ const SkeletonCard = () => (
           {/* Address */}
           <div className="flex items-center gap-1.5">
             <div className="h-3.5 w-3.5 rounded bg-muted" />
-            <div className="h-4 w-48 rounded bg-muted" />
+            <div className="h-4 w-32 sm:w-48 rounded bg-muted" />
           </div>
 
           {/* Update date */}
           <div className="flex items-center gap-1.5">
             <div className="h-3 w-3 rounded bg-muted" />
-            <div className="h-3 w-32 rounded bg-muted" />
+            <div className="h-3 w-28 sm:w-32 rounded bg-muted" />
           </div>
         </div>
 
@@ -34,7 +34,7 @@ const SkeletonCard = () => (
       </div>
 
       {/* Chart placeholder */}
-      <div className="mt-4 h-28 w-full rounded-lg bg-muted/50" />
+      <div className="mt-4 -mx-1 h-28 w-full rounded-lg bg-muted/50" />
 
       {/* Fuel price pills */}
       <div className="mt-4 flex flex-wrap gap-2.5">
@@ -62,7 +62,7 @@ const SkeletonCard = () => (
     </div>
 
     {/* Footer actions */}
-    <div className="flex items-center gap-2 border-t border-border/40 bg-muted/20 px-6 py-3">
+    <div className="flex items-center gap-2 border-t border-border/40 bg-muted/20 px-4 sm:px-6 py-3">
       <div className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2">
         <div className="h-4 w-4 rounded bg-muted" />
         <div className="h-4 w-10 rounded bg-muted" />
