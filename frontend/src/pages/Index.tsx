@@ -187,11 +187,32 @@ const Index = () => {
         const aPrices = a.prices || [];
         const bPrices = b.prices || [];
         let aPrice: number, bPrice: number;
+
         switch (sortParam) {
           case "expensive":
             aPrice = aPrices.length > 0 ? Math.max(...aPrices.map(p => p.price)) : -Infinity;
             bPrice = bPrices.length > 0 ? Math.max(...bPrices.map(p => p.price)) : -Infinity;
             return bPrice - aPrice;
+          case "cheapest_motorina":
+            aPrice = getFuelPrice(aPrices, ["motorin"]);
+            bPrice = getFuelPrice(bPrices, ["motorin"]);
+            return aPrice - bPrice;
+          case "expensive_motorina":
+            aPrice = getFuelPrice(aPrices, ["motorin"]);
+            bPrice = getFuelPrice(bPrices, ["motorin"]);
+            return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
+          case "cheapest_benzina":
+            aPrice = getFuelPrice(aPrices, ["benzin"]);
+            bPrice = getFuelPrice(bPrices, ["benzin"]);
+            return aPrice - bPrice;
+          case "expensive_benzina":
+            aPrice = getFuelPrice(aPrices, ["benzin"]);
+            bPrice = getFuelPrice(bPrices, ["benzin"]);
+            return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
+          case "cheapest_gpl":
+            aPrice = getFuelPrice(aPrices, ["gpl"]);
+            bPrice = getFuelPrice(bPrices, ["gpl"]);
+            return aPrice - bPrice;
           case "expensive_gpl":
             aPrice = getFuelPrice(aPrices, ["gpl"]);
             bPrice = getFuelPrice(bPrices, ["gpl"]);

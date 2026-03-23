@@ -25,7 +25,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (fuelDropdownRef.current && !fuelDropdownRef.current.contains(event.target as Node)) {
         setShowFuelDropdown(false);
       }
@@ -34,7 +34,11 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, []);
 
   const toggleFuel = (fuel: FuelType) => {
@@ -121,7 +125,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
-                  className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-xs text-muted-foreground border hover:bg-muted"
+                  className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-xs text-muted-foreground border hover:bg-muted cursor-pointer"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   Filtre{selectedFuels.size < ALL_FUELS.length && <span className="text-primary"> ({selectedFuels.size})</span>}
@@ -132,7 +136,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                       <button
                         key={id}
                         type="button"
-                        onClick={() => toggleFuel(id)}
+                        onClick={() => { toggleFuel(id); setShowFuelDropdown(false); }}
                         className={`flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg px-3 py-1.5 hover:bg-muted w-full ${selectedFuels.has(id) ? activeBg : ""}`}
                       >
                         <Icon className={`w-3.5 h-3.5 ${selectedFuels.has(id) ? color : ""}`} />
@@ -150,8 +154,9 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               {/* Sort */}
               <div className="relative" ref={sortDropdownRef}>
                 <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
-                  className="h-9 px-3 flex items-center gap-1 text-xs text-muted-foreground border rounded-lg hover:bg-muted"
+                  className="h-9 px-3 flex items-center gap-1 text-xs text-muted-foreground border rounded-lg hover:bg-muted cursor-pointer"
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
                   Sortare{selectedSort !== DEFAULT_SORT && <span className="text-primary"> •</span>}
@@ -229,7 +234,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
-                  className="h-11 px-3 rounded-lg flex items-center gap-1.5 text-sm text-muted-foreground border py-1.5 hover:bg-muted"
+                  className="h-11 px-3 rounded-lg flex items-center gap-1.5 text-sm text-muted-foreground border py-1.5 hover:bg-muted cursor-pointer"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   Filtre{selectedFuels.size < ALL_FUELS.length && <span className="text-primary"> ({selectedFuels.size})</span>}
@@ -259,8 +264,9 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               {/* Sort */}
               <div className="relative" ref={sortDropdownRef}>
                 <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
-                  className="h-11 px-3 flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg py-1.5 hover:bg-muted"
+                  className="h-11 px-3 flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg py-1.5 hover:bg-muted cursor-pointer"
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
                   <span>{selectedSort === "cheapest_motorina" ? "Sortare" : SORT_OPTIONS.find(s => s.id === selectedSort)?.label}</span>
