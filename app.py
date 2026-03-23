@@ -20,13 +20,6 @@ app = FastAPI(title="Fuel Price Romania API", description="API to fetch fuel pri
 # ----------------------------
 # CORS setup for frontend
 # ----------------------------
-origins = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "https://romaniapetrolprices.netlify.app/",  # production frontend
-    "https://fuel-prices-romania.onrender.com"  # if backend calls itself
-]
 
 app.add_middleware(
     CORSMiddleware,
