@@ -39,6 +39,7 @@ const Index = () => {
     setHasSearched(true);
 
     try {
+      console.log("API URL:", API_SEARCH_URL);
       const res = await fetch(`${API_SEARCH_URL}?${params}`);
       const data: SearchResult = await res.json();
 
