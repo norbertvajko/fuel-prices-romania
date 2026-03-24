@@ -3,13 +3,14 @@ import FuelSearch from "../components/FuelSearch";
 import CityAverages from "../components/CityAverages";
 import SkeletonCard from "../components/SkeletonCard";
 import StationCard from "../components/StationCard";
+import PriceTrendChart from "../components/PriceTrendChart";
 import type { Station, FuelType, PriceSort, SearchResult } from "../types";
 import { API_SEARCH_URL, DEFAULT_SORT } from "../constants";
 import { useCallback, useState } from "react";
 import Footer from "../components/Footer";
 
 // Calculate distance between two coordinates in km (Haversine formula)
-const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -22,8 +23,62 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
 
 // Helper to get price for a specific fuel type
 const getFuelPrice = (prices: Station["prices"], fuelNames: string[]): number => {
-  const matching = prices.filter(p => fuelNames.some(fn => p.fuel.toLowerCase().includes(fn.toLowerCase())));
-  return matching.length > 0 ? Math.min(...matching.map(p => p.price)) : Infinity;
+  const matching = prices?.filter(p => fuelNames.some(fn => p.fuel.toLowerCase().includes(fn.toLowerCase())));
+  return matching?.length ? Math.min(...matching.map(p => p.price)) : Infinity;
+};
+
+// Sort stations by the specified sort option
+const sortStations = (stations: Station[], sortParam: PriceSort, userLat?: number, userLon?: number): Station[] => {
+  const sorted = [...stations];
+
+  if (userLat !== undefined && userLon !== undefined) {
+    return sorted.sort((a, b) => {
+      const distA = getDistance(userLat, userLon, a.lat, a.lon);
+      const distB = getDistance(userLat, userLon, b.lat, b.lon);
+      return distA - distB;
+    });
+  }
+
+  return sorted.sort((a, b) => {
+    const aPrices = a.prices || [];
+    const bPrices = b.prices || [];
+
+    const getPrice = (prices: Station["prices"], type: PriceSort): number => {
+      switch (type) {
+        case "expensive":
+          return prices.length ? Math.max(...prices.map(p => p.price)) : -Infinity;
+        case "cheapest_motorina":
+          return getFuelPrice(prices, ["motorin"]);
+        case "expensive_motorina":
+          return getFuelPrice(prices, ["motorin"]);
+        case "cheapest_benzina":
+          return getFuelPrice(prices, ["benzin"]);
+        case "expensive_benzina":
+          return getFuelPrice(prices, ["benzin"]);
+        case "cheapest_gpl":
+          return getFuelPrice(prices, ["gpl"]);
+        case "expensive_gpl":
+          return getFuelPrice(prices, ["gpl"]);
+        default:
+          return prices.length ? Math.min(...prices.map(p => p.price)) : Infinity;
+      }
+    };
+
+    const aPrice = getPrice(aPrices, sortParam);
+    const bPrice = getPrice(bPrices, sortParam);
+
+    // Handle cases where price is Infinity (no price found)
+    if (aPrice === Infinity && bPrice === Infinity) return 0;
+    if (aPrice === Infinity) return 1;
+    if (bPrice === Infinity) return -1;
+
+    // For expensive variants, reverse the order
+    if (sortParam.startsWith("expensive")) {
+      return bPrice - aPrice;
+    }
+
+    return aPrice - bPrice;
+  });
 };
 
 const Index = () => {
@@ -52,6 +107,13 @@ const Index = () => {
     setStations([]);
     setHasSearched(true);
 
+    // Extract city from params for skeleton display during loading
+    const urlParams = new URLSearchParams(params);
+    const cityParam = urlParams.get("city");
+    if (cityParam) {
+      setLastCity(decodeURIComponent(cityParam));
+    }
+
     try {
       const res = await fetch(`${API_SEARCH_URL}?${params}`);
       const data: SearchResult = await res.json();
@@ -66,61 +128,12 @@ const Index = () => {
       const userLon = urlParams.get("lon");
       const sortParam = (urlParams.get("sort") as PriceSort) || DEFAULT_SORT;
 
-      let sorted: Station[];
-
-      if (userLat && userLon) {
-        // Sort by distance from user location
-        const ulat = parseFloat(userLat);
-        const ulon = parseFloat(userLon);
-        sorted = [...data.stations].sort((a, b) => {
-          const distA = getDistance(ulat, ulon, a.lat, a.lon);
-          const distB = getDistance(ulat, ulon, b.lat, b.lon);
-          return distA - distB;
-        });
-      } else {
-        // Sort by price based on sort option
-        sorted = [...data.stations].sort((a, b) => {
-          const aPrices = a.prices || [];
-          const bPrices = b.prices || [];
-
-          let aPrice: number, bPrice: number;
-
-          switch (sortParam) {
-            case "expensive":
-              aPrice = aPrices.length > 0 ? Math.max(...aPrices.map(p => p.price)) : -Infinity;
-              bPrice = bPrices.length > 0 ? Math.max(...bPrices.map(p => p.price)) : -Infinity;
-              return bPrice - aPrice;
-            case "cheapest_motorina":
-              aPrice = getFuelPrice(aPrices, ["motorin"]);
-              bPrice = getFuelPrice(bPrices, ["motorin"]);
-              return aPrice - bPrice;
-            case "expensive_motorina":
-              aPrice = getFuelPrice(aPrices, ["motorin"]);
-              bPrice = getFuelPrice(bPrices, ["motorin"]);
-              return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
-            case "cheapest_benzina":
-              aPrice = getFuelPrice(aPrices, ["benzin"]);
-              bPrice = getFuelPrice(bPrices, ["benzin"]);
-              return aPrice - bPrice;
-            case "expensive_benzina":
-              aPrice = getFuelPrice(aPrices, ["benzin"]);
-              bPrice = getFuelPrice(bPrices, ["benzin"]);
-              return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
-            case "cheapest_gpl":
-              aPrice = getFuelPrice(aPrices, ["gpl"]);
-              bPrice = getFuelPrice(bPrices, ["gpl"]);
-              return aPrice - bPrice;
-            case "expensive_gpl":
-              aPrice = getFuelPrice(aPrices, ["gpl"]);
-              bPrice = getFuelPrice(bPrices, ["gpl"]);
-              return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
-            default:
-              aPrice = aPrices.length > 0 ? Math.min(...aPrices.map(p => p.price)) : Infinity;
-              bPrice = bPrices.length > 0 ? Math.min(...bPrices.map(p => p.price)) : Infinity;
-              return aPrice - bPrice;
-          }
-        });
-      }
+      const sorted = sortStations(
+        data.stations,
+        sortParam,
+        userLat ? parseFloat(userLat) : undefined,
+        userLon ? parseFloat(userLon) : undefined
+      );
 
       setStations(sorted);
       setLastStationCount(sorted.length);
@@ -182,53 +195,13 @@ const Index = () => {
       // Re-process and set stations (similar to doSearch)
       const urlParams = new URLSearchParams(refreshQuery);
       const sortParam = (urlParams.get("sort") as PriceSort) || DEFAULT_SORT;
-      let sorted: Station[];
-      sorted = [...data.stations].sort((a, b) => {
-        const aPrices = a.prices || [];
-        const bPrices = b.prices || [];
-        let aPrice: number, bPrice: number;
-
-        switch (sortParam) {
-          case "expensive":
-            aPrice = aPrices.length > 0 ? Math.max(...aPrices.map(p => p.price)) : -Infinity;
-            bPrice = bPrices.length > 0 ? Math.max(...bPrices.map(p => p.price)) : -Infinity;
-            return bPrice - aPrice;
-          case "cheapest_motorina":
-            aPrice = getFuelPrice(aPrices, ["motorin"]);
-            bPrice = getFuelPrice(bPrices, ["motorin"]);
-            return aPrice - bPrice;
-          case "expensive_motorina":
-            aPrice = getFuelPrice(aPrices, ["motorin"]);
-            bPrice = getFuelPrice(bPrices, ["motorin"]);
-            return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
-          case "cheapest_benzina":
-            aPrice = getFuelPrice(aPrices, ["benzin"]);
-            bPrice = getFuelPrice(bPrices, ["benzin"]);
-            return aPrice - bPrice;
-          case "expensive_benzina":
-            aPrice = getFuelPrice(aPrices, ["benzin"]);
-            bPrice = getFuelPrice(bPrices, ["benzin"]);
-            return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
-          case "cheapest_gpl":
-            aPrice = getFuelPrice(aPrices, ["gpl"]);
-            bPrice = getFuelPrice(bPrices, ["gpl"]);
-            return aPrice - bPrice;
-          case "expensive_gpl":
-            aPrice = getFuelPrice(aPrices, ["gpl"]);
-            bPrice = getFuelPrice(bPrices, ["gpl"]);
-            return aPrice === Infinity ? 1 : bPrice === Infinity ? -1 : bPrice - aPrice;
-          default:
-            aPrice = aPrices.length > 0 ? Math.min(...aPrices.map(p => p.price)) : Infinity;
-            bPrice = bPrices.length > 0 ? Math.min(...bPrices.map(p => p.price)) : Infinity;
-            return aPrice - bPrice;
-        }
-      });
-        setStations(sorted);
-        setLastStationCount(sorted.length);
-        setLastCity(data.city);
-        setCurrentCity(data.city);
-        setLastUpdated(data.last_updated);
-      } catch (error) {
+      const sorted = sortStations(data.stations, sortParam);
+      setStations(sorted);
+      setLastStationCount(sorted.length);
+      setLastCity(data.city);
+      setCurrentCity(data.city);
+      setLastUpdated(data.last_updated);
+    } catch (error) {
         console.error("Refresh Error:", error);
       setStatusMessage({ type: "error", text: "❌ Eroare la actualizarea prețurilor." });
     } finally {
@@ -338,14 +311,7 @@ const Index = () => {
         hasSearched={hasSearched}
       />
 
-      {/* Decorative SVG rings */}
-      {/* Decorative lines */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute top-[18%] left-0 right-0 h-px bg-linear-to-r from-transparent via-primary/10 to-transparent" />
-        <div className="absolute bottom-[22%] left-0 right-0 h-px bg-linear-to-r from-transparent via-fuel-motorina/8 to-transparent" />
-      </div>
-
-      <main className={`max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 ${hasSearched ? "pt-3 sm:pt-4" : ""}`}>
+      <main className={`flex-1 max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 ${hasSearched ? "pt-3 sm:pt-4" : ""}`}>
         {statusMessage && !isLoading && (
           <p className={`text-center text-sm font-medium ${statusMessage.type === "error" ? "text-destructive" : "text-muted-foreground"}`}>
             {statusMessage.text}
@@ -353,18 +319,21 @@ const Index = () => {
         )}
 
         {!isLoading && stations.length > 0 && currentCity && (
-          <CityAverages
-            stations={stations}
-            city={currentCity}
-            onRefresh={handleRefresh}
-            isRefreshing={isRefreshing}
-            canRefresh={!lastRefreshTime || (Date.now() - lastRefreshTime) >= REFRESH_LIMIT_MS}
-            lastUpdated={lastUpdated}
-          />
+          <>
+            <CityAverages
+              stations={stations}
+              city={currentCity}
+              onRefresh={handleRefresh}
+              isRefreshing={isRefreshing}
+              canRefresh={!lastRefreshTime || (Date.now() - lastRefreshTime) >= REFRESH_LIMIT_MS}
+              lastUpdated={lastUpdated}
+            />
+            <PriceTrendChart isRefreshing={isRefreshing} city={currentCity} />
+          </>
         )}
 
         {/* Show CityAverages skeleton during loading (use last known city) */}
-        {isLoading && lastStationCount > 0 && lastCity && (
+        {isLoading && lastCity && (
           <CityAverages
             stations={[]}
             city={lastCity}
@@ -374,16 +343,13 @@ const Index = () => {
           />
         )}
 
+        {/* Show PriceTrendChart skeleton during loading (use last known city) */}
+        {isLoading && lastCity && (
+          <PriceTrendChart city={lastCity} isLoading={true} />
+        )}
+
         {isLoading && (
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-6">
-              <div className="flex gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Se caută stații…</p>
-            </div>
+          <div className="w-full px-2 sm:px-0 space-y-2 sm:space-y-3">
             {/* Show skeletons matching last known count for consistency with refresh */}
             {[...Array(lastStationCount > 0 ? lastStationCount : 5)].map((_, i) => (
               <SkeletonCard key={i} />
@@ -392,15 +358,7 @@ const Index = () => {
         )}
 
         {isRefreshing && stations.length > 0 && (
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-6">
-              <div className="flex gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:0ms]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:150ms]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-primary animate-bounce [animation-delay:300ms]" />
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Se actualizează prețurile…</p>
-            </div>
+          <div className="w-full px-2 sm:px-0 space-y-2 sm:space-y-3">
             {[...Array(stations.length)].map((_, i) => (
               <SkeletonCard key={`refresh-${i}`} />
             ))}

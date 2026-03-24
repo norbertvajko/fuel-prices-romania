@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Search, MapPin, Navigation, Fuel, X, ChevronDown, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import type { FuelType, PriceSort, SearchMode } from "../types";
 import { FUEL_OPTIONS, SORT_OPTIONS, DEFAULT_SORT, ALL_FUELS } from "../constants";
@@ -94,9 +95,9 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
           <div className="sm:hidden py-2 space-y-2">
             {/* Row 1: Logo + Search + Search Button */}
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <Link to="/" className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
                 <Fuel className="w-5 h-5 text-primary-foreground" />
-              </div>
+              </Link>
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 <input
@@ -124,7 +125,8 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               <div className="relative" ref={fuelDropdownRef}>
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
                   className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-xs text-muted-foreground border hover:bg-muted cursor-pointer"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -136,7 +138,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                       <button
                         key={id}
                         type="button"
-                        onClick={() => { toggleFuel(id); setShowFuelDropdown(false); }}
+                        onClick={(e) => { e.stopPropagation(); toggleFuel(id); setShowFuelDropdown(false); }}
                         className={`flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg px-3 py-1.5 hover:bg-muted w-full ${selectedFuels.has(id) ? activeBg : ""}`}
                       >
                         <Icon className={`w-3.5 h-3.5 ${selectedFuels.has(id) ? color : ""}`} />
@@ -155,7 +157,8 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               <div className="relative" ref={sortDropdownRef}>
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
                   className="h-9 px-3 flex items-center gap-1 text-xs text-muted-foreground border rounded-lg hover:bg-muted cursor-pointer"
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
@@ -167,7 +170,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                       <button
                         key={id}
                         type="button"
-                        onClick={() => { setSelectedSort(id); setShowSortDropdown(false); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedSort(id); setShowSortDropdown(false); }}
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium ${selectedSort === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
                       >
                         {label}
@@ -205,11 +208,11 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
           {/* Desktop Layout: Single row */}
           <div className="hidden sm:flex items-center gap-4 h-20">
             {/* Logo */}
-            <div className="flex items-center gap-2 shrink-0">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                 <Fuel className="w-5 h-5 text-primary-foreground" />
               </div>
-            </div>
+            </Link>
 
             {/* Search Input */}
             <div className="flex-1 flex items-center gap-3">
@@ -233,7 +236,8 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               <div className="relative" ref={fuelDropdownRef}>
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setShowFuelDropdown(!showFuelDropdown); }}
                   className="h-11 px-3 rounded-lg flex items-center gap-1.5 text-sm text-muted-foreground border py-1.5 hover:bg-muted cursor-pointer"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -245,7 +249,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                       <button
                         key={id}
                         type="button"
-                        onClick={() => toggleFuel(id)}
+                        onClick={(e) => { e.stopPropagation(); toggleFuel(id); }}
                         className={`flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg px-3 py-1.5 hover:bg-muted w-full ${selectedFuels.has(id) ? activeBg : ""}`}
                       >
                         <Icon className={`w-3.5 h-3.5 ${selectedFuels.has(id) ? color : ""}`} />
@@ -265,7 +269,8 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
               <div className="relative" ref={sortDropdownRef}>
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setShowSortDropdown(!showSortDropdown); }}
                   className="h-11 px-3 flex items-center gap-1.5 text-sm text-muted-foreground border rounded-lg py-1.5 hover:bg-muted cursor-pointer"
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
@@ -279,7 +284,7 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
                       <button
                         key={id}
                         type="button"
-                        onClick={() => { setSelectedSort(id); setShowSortDropdown(false); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedSort(id); setShowSortDropdown(false); }}
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium ${selectedSort === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
                       >
                         {label}
@@ -337,9 +342,9 @@ const FuelSearch = ({ onSearchCity, onSearchAddress, onSearchNearby, onClearSear
       <div className="flex flex-col items-center gap-4 mb-10">
         <div className="relative">
           <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl scale-150" />
-          <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-[0_4px_16px_hsl(221_83%_53%/0.3)]">
+          <Link to="/" className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-[0_4px_16px_hsl(221_83%_53%/0.3)]">
             <Fuel className="w-7 h-7 text-primary-foreground" />
-          </div>
+          </Link>
         </div>
         <div className="text-center">
           <h1 className="text-[1.75rem] font-extrabold tracking-tight text-foreground leading-tight">
