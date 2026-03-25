@@ -11,14 +11,6 @@ interface TooltipPayloadItem {
   payload?: Record<string, unknown>;
 }
 
-// Recharts tooltip props type
-interface ChartTooltipProps {
-  active?: boolean;
-  payload?: TooltipPayloadItem[];
-  label?: string | number;
-  content?: React.ReactNode;
-}
-
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;

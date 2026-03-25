@@ -1,51 +1,18 @@
-import { useState, useRef, useEffect } from "react";
-import { Fuel, TrendingDown, BarChart3, Search, MapPin } from "lucide-react";
+import { useState } from "react";
+import { Fuel, Search } from "lucide-react";
 
 interface HeroSectionProps {
   onSearch?: (city: string) => void;
 }
 
-const cities = [
-  "Arad", "București", "Cluj-Napoca", "Timișoara", "Iași", "Constanța",
-  "Brașov", "Craiova", "Galați", "Oradea", "Sibiu", "Ploiești",
-  "Bacău", "Pitești", "Baia Mare", "Buzău", "Suceava", "Târgu Mureș",
-  "Alba Iulia", "Bistrița", "Deva", "Hunedoara", "Mediaș", "Satu Mare",
-];
-
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
   const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const [selectedCity, setSelectedCity] = useState("Arad");
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const filtered = query.length > 0
-    ? cities.filter((c) => c.toLowerCase().includes(query.toLowerCase()))
-    : cities;
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const handleSelect = (city: string) => {
-    setSelectedCity(city);
-    setQuery("");
-    setOpen(false);
-    onSearch?.(city);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      // Use the typed city name directly
       onSearch?.(query.trim());
       setQuery("");
-      setOpen(false);
     }
   };
 
@@ -79,17 +46,13 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
         </p>
 
         {/* Search bar */}
-        <div ref={wrapperRef} className="relative mt-8 max-w-lg">
+        <div className="relative mt-8 max-w-lg">
           <form onSubmit={handleSubmit} className="flex items-center bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/20 rounded-2xl px-4 py-3 gap-3 focus-within:border-primary-foreground/40 transition-colors">
             <Search className="w-5 h-5 text-primary-foreground/50 shrink-0" />
             <input
               type="text"
               value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setOpen(true);
-              }}
-              onFocus={() => setOpen(true)}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Caută un oraș (ex: Arad, București)"
               className="flex-1 bg-transparent text-primary-foreground placeholder:text-primary-foreground/40 text-sm outline-none"
             />
