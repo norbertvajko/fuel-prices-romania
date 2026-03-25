@@ -172,7 +172,7 @@ const PriceTrendChart = ({ city, isLoading: externalLoading, isRefreshing: exter
         </h2>
       </div>
 
-      <div className="h-[300px] w-full">
+      <div className="h-75 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid

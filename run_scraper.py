@@ -6,7 +6,7 @@ import requests
 import sys
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "https://fuel-prices-romania.onrender.com"
 UPDATE_ALL_ENDPOINT = f"{API_BASE_URL}/price-history/update-all"
 
 
