@@ -104,7 +104,7 @@ const CityAverages = ({ city, stations, onRefresh, isRefreshing, isLoading, canR
                 <div className="flex items-center gap-2 text-primary-foreground">
                     <MapPin className="w-4 h-4" />
                     <span className="font-semibold text-sm tracking-wide">
-                        {stations.length} stații găsite
+                        {stations.length} stații găsite în {capitalizeFirst(city)}
                     </span>
                 </div>
                 <div className="flex items-center gap-2">

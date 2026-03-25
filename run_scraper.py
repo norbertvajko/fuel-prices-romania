@@ -9,7 +9,7 @@ import time
 import os
 
 # Configuration
-API_BASE_URL = os.getenv("API_BASE_URL", "https://fuel-prices-romania.onrender.com")
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 UPDATE_ALL_ENDPOINT = f"{API_BASE_URL}/price-history/update-all"
 
 # Retry configuration

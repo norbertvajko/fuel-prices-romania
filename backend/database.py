@@ -57,6 +57,7 @@ def init_db() -> None:
 def save_price_history(city: str, prices: dict) -> None:
     """
     Save price data to history table.
+    Uses INSERT OR IGNORE to keep the first scrape of the day (skips duplicates).
     
     Args:
         city: The city name
@@ -68,13 +69,11 @@ def save_price_history(city: str, prices: dict) -> None:
     
     for fuel_type, price in prices.items():
         if price and price != float('inf'):
-            try:
-                cursor.execute("""
-                    INSERT INTO price_history (city, fuel_type, price, timestamp)
-                    VALUES (?, ?, ?, datetime('now'))
-                """, (city, fuel_type, price))
-            except sqlite3.IntegrityError:
-                pass  # Skip duplicate entries
+            # Use INSERT OR IGNORE to keep the first scrape of the day
+            cursor.execute("""
+                INSERT OR IGNORE INTO price_history (city, fuel_type, price, timestamp)
+                VALUES (?, ?, ?, datetime('now'))
+            """, (city, fuel_type, price))
     
     conn.commit()
     conn.close()
@@ -136,6 +135,7 @@ def clear_price_history() -> None:
 def save_national_average(prices: dict) -> None:
     """
     Save national average prices to database.
+    Uses INSERT OR IGNORE to keep the first scrape of the day.
     
     Args:
         prices: Dict with fuel types as keys and average prices as values
@@ -146,13 +146,11 @@ def save_national_average(prices: dict) -> None:
     
     for fuel_type, price in prices.items():
         if price and price != float('inf'):
-            try:
-                cursor.execute("""
-                    INSERT INTO national_averages (fuel_type, price, timestamp)
-                    VALUES (?, ?, datetime('now'))
-                """, (fuel_type, price))
-            except sqlite3.IntegrityError:
-                pass  # Skip duplicate entries
+            # Use INSERT OR IGNORE to keep the first scrape of the day
+            cursor.execute("""
+                INSERT OR IGNORE INTO national_averages (fuel_type, price, timestamp)
+                VALUES (?, ?, datetime('now'))
+            """, (fuel_type, price))
     
     conn.commit()
     conn.close()
@@ -162,6 +160,7 @@ def save_national_average(prices: dict) -> None:
 def get_national_average_history(days: int = 30) -> list:
     """
     Get national average price history for the last N days.
+    Returns the last reading from each day for each fuel type.
     
     Args:
         days: Number of days to look back (default 30)
@@ -172,14 +171,23 @@ def get_national_average_history(days: int = 30) -> list:
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
+    # Get the last reading from each day for each fuel type
     cursor.execute("""
         SELECT 
-            DATE(timestamp) as date,
-            fuel_type,
-            AVG(price) as avg_price
-        FROM national_averages
-        WHERE timestamp >= datetime('now', '-' || ? || ' days')
-        GROUP BY DATE(timestamp), fuel_type
+            DATE(n.timestamp) as date,
+            n.fuel_type,
+            n.price
+        FROM national_averages n
+        INNER JOIN (
+            SELECT 
+                fuel_type,
+                DATE(timestamp) as date,
+                MAX(timestamp) as max_timestamp
+            FROM national_averages
+            WHERE timestamp >= datetime('now', '-' || ? || ' days')
+            GROUP BY fuel_type, DATE(timestamp)
+        ) latest ON n.fuel_type = latest.fuel_type 
+            AND n.timestamp = latest.max_timestamp
         ORDER BY date ASC
     """, (days,))
     
