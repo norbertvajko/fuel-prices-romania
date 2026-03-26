@@ -4,7 +4,7 @@ This list is used for the cron job that runs daily to save average prices.
 """
 
 # Top 50 major Romanian cities by population for daily price trend tracking
-MMAJOR_CITIES = [
+MAJOR_CITIES = [
     "Alba Iulia",       # Alba
     "Arad",             # Arad
     "Curtea de Arges",  # Arges
