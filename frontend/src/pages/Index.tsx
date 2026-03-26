@@ -1,11 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import HeroSection from "../components/HeroSection";
 import YearlyChart from "../components/YearlyChart";
 import CityAverages from "../components/CityAverages";
 import StationCard from "../components/StationCard";
 import { ChartSkeleton, StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
+import FuelLoader from "../components/FuelLoader";
 import { API_SEARCH_URL, DEFAULT_SORT } from "../constants";
 import type { Station, SearchResult } from "../types";
+import Footer from "../components/Footer";
 
 const Index = () => {
   const [stations, setStations] = useState<Station[]>([]);
@@ -14,7 +16,12 @@ const Index = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [currentCity, setCurrentCity] = useState<string | undefined>(undefined);
   const [lastUpdated, setLastUpdated] = useState<string | undefined>();
-  
+  const [isChartLoaded, setIsChartLoaded] = useState(false);
+  const [chartProgress, setChartProgress] = useState(0);
+  const cityAveragesRef = useRef<HTMLDivElement>(null);
+  const stationsRef = useRef<HTMLDivElement>(null);
+  const firstStationCardRef = useRef<HTMLDivElement>(null);
+
   // Track last known city for skeleton display
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
 
@@ -44,8 +51,6 @@ const Index = () => {
       setStations(data.stations);
       setCurrentCity(data.city);
       setLastUpdated(data.last_updated);
-      console.log("Stations received:", data.stations.length);
-
     } catch (error) {
       console.error("API Error:", error);
     } finally {
@@ -58,12 +63,11 @@ const Index = () => {
     // Don't filter by fuels - get all stations (like the original implementation)
     const query = `city=${encodeURIComponent(city)}&sort=${DEFAULT_SORT}`;
     doSearch(query);
-    
+
     // Scroll to the CityAverages section
     setTimeout(() => {
-      const cityAveragesElement = document.querySelector('.max-w-6xl.mx-auto.px-4.mt-8');
-      if (cityAveragesElement) {
-        cityAveragesElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (cityAveragesRef.current) {
+        cityAveragesRef.current.scrollIntoView({ behavior: "smooth", block: "start", });
       }
     }, 100);
   };
@@ -77,11 +81,13 @@ const Index = () => {
     doSearch(query).finally(() => setRefreshing(false));
   };
 
-  // Show hero only state before first search
-  const showEmptyState = !hasSearched;
-
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="flex flex-col bg-background overflow-hidden">
+      {/* Show loader until chart is loaded */}
+      {!isChartLoaded && (
+        <FuelLoader onComplete={() => setIsChartLoaded(true)} progress={chartProgress} />
+      )}
+
       <HeroSection onSearch={handleSearchFromHero} />
 
       {/* Chart - always show */}
@@ -91,57 +97,52 @@ const Index = () => {
         </section>
       ) : (
         <section className="max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-          <YearlyChart />
+          <YearlyChart
+            onLoadingComplete={() => setIsChartLoaded(true)}
+            onProgress={(progress) => setChartProgress(progress)}
+          />
         </section>
       )}
+        {/* Today's prices - Real data from API */}
+        <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
+          {isLoading || refreshing ? (
+            <TodayPricesSkeleton />
+          ) : (
+            <CityAverages
+              city={lastCity || currentCity || ""}
+              stations={stations}
+              onRefresh={handleRefresh}
+              isRefreshing={refreshing}
+              isLoading={isLoading}
+              lastUpdated={lastUpdated}
+            />
+          )}
+        </section>
 
-      {/* Content - only show after search */}
-      {showEmptyState ? (
-        <div className="max-w-6xl mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Caută un oraș pentru a vedea prețurile combustibililor</p>
-        </div>
-      ) : (
-        <>
-          {/* Today's prices - Real data from API */}
-          <section className="max-w-6xl mx-auto px-4 mt-12">
-            {isLoading || refreshing ? (
-              <TodayPricesSkeleton />
-            ) : (
-              <CityAverages
-                city={lastCity || currentCity || ""}
-                stations={stations}
-                onRefresh={handleRefresh}
-                isRefreshing={refreshing}
-                isLoading={isLoading}
-                lastUpdated={lastUpdated}
-              />
-            )}
-          </section>
-
-          {/* Stations section - Real data from API */}
-          <section className="max-w-6xl mx-auto px-4 mt-8">
-            {isLoading || stations.length === 0 ? (
-              <StationListSkeleton />
-            ) : stations.length > 0 ? (
-              <div className="space-y-4">
-                {stations.map((station, index) => (
-                  <StationCard
-                    key={station.name + index}
-                    station={station}
-                    cheapestPrice={0}
-                    isOverallCheapest={false}
-                    index={index}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
-              </div>
-            )}
-          </section>
-        </>
-      )}
+        {/* Stations section - Real data from API */}
+        <section ref={stationsRef} className="max-w-6xl mx-auto px-4 mt-8">
+          {isLoading ? (
+            <StationListSkeleton />
+          ) : stations.length > 0 ? (
+            <div className="space-y-4">
+              {stations.map((station, index) => (
+                <StationCard
+                  key={station.name + index}
+                  station={station}
+                  cheapestPrice={0}
+                  isOverallCheapest={false}
+                  index={index}
+                  ref={index === 0 ? firstStationCardRef : null}
+                />
+              ))}
+            </div>
+          ) : hasSearched ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
+            </div>
+          ) : null}
+        </section>
+      <Footer />
     </div>
   );
 };

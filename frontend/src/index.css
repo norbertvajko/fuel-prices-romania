@@ -6,42 +6,47 @@
   /* Colors */
   --color-background: hsl(210 40% 98%);
   --color-foreground: hsl(222 47% 11%);
-  
+
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(222 47% 11%);
-  
+
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(222 47% 11%);
-  
+
   --color-primary: hsl(214 80% 40%);
   --color-primary-foreground: hsl(0 0% 100%);
-  
+
   --color-secondary: hsl(215 20% 65%);
   --color-secondary-foreground: hsl(222 47% 11%);
-  
+
+  --color-hero-bg: hsl(220 80% 50%);
+  --color-hero-bg-dark: hsl(225 85% 38%);
+  --color-hero-foreground: hsl(0 0% 100%);
+  --color-hero-glow: hsl(210 100% 65%);
+
   --color-muted: hsl(210 40% 96%);
   --color-muted-foreground: hsl(215 16% 47%);
-  
+
   --color-accent: hsl(210 40% 96%);
   --color-accent-foreground: hsl(222 47% 11%);
-  
+
   --color-success: hsl(142 72% 37%);
   --color-success-foreground: hsl(0 0% 100%);
-  
+
   --color-destructive: hsl(0 84% 60%);
   --color-destructive-foreground: hsl(0 0% 100%);
-  
+
   --color-border: hsl(214 32% 91%);
   --color-input: hsl(214 32% 91%);
   --color-ring: hsl(214 80% 40%);
-  
+
   /* Radius */
   --radius-xl: 0.75rem;
-  
+
   /* Animations */
   --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-skeleton-pulse: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  
+
   /* Font */
   --font-sans: 'Inter', sans-serif;
 }
@@ -51,6 +56,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -58,9 +64,12 @@
 }
 
 @keyframes skeleton-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -88,7 +97,8 @@ body {
 
 /* Custom breakpoint for extra small screens */
 @theme {
-  --breakpoint-xs: 30rem; /* 480px - for very small phones */
+  --breakpoint-xs: 30rem;
+  /* 480px - for very small phones */
 }
 
 @keyframes shimmer {

@@ -60,23 +60,23 @@ function computeAverages(stations: Station[]) {
         });
 }
 
-const CityAverages = ({ city, stations, onRefresh, isRefreshing, isLoading, canRefresh, lastUpdated }: CityAveragesProps) => {
+const CityAverages = ({ city, stations, onRefresh, isRefreshing, isLoading, canRefresh, lastUpdated, headerRef }: CityAveragesProps & { headerRef?: React.RefObject<HTMLDivElement | null> }) => {
     const fuelAverages = computeAverages(stations);
 
     // Show skeleton when refreshing or loading
     if (isRefreshing || isLoading) {
         return (
             <div className="rounded-xl bg-card border shadow-sm overflow-hidden animate-pulse">
-                <div className="bg-primary px-3 sm:px-5 py-2 sm:py-3">
+                <div ref={headerRef} className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3">
                     <div className="h-5 sm:h-6 w-24 sm:w-32 bg-primary/20 rounded" />
                 </div>
-                <div className="p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
+                <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="rounded-lg border bg-background p-2 sm:p-3 flex flex-col items-center gap-1 sm:gap-2">
-                            <div className="w-6 sm:w-8 h-8 sm:h-10 rounded bg-muted" />
-                            <div className="h-2.5 sm:h-3 w-12 sm:w-16 rounded bg-muted" />
-                            <div className="h-4 sm:h-5 w-10 sm:w-12 rounded bg-muted" />
-                            <div className="h-2 w-14 sm:w-20 rounded bg-muted" />
+                        <div key={i} className="rounded-lg border bg-background p-3 flex flex-col items-center gap-2">
+                            <div className="w-8 h-10 rounded bg-muted" />
+                            <div className="h-3 w-16 rounded bg-muted" />
+                            <div className="h-5 w-12 rounded bg-muted" />
+                            <div className="h-2 w-20 rounded bg-muted" />
                         </div>
                     ))}
                 </div>
@@ -100,7 +100,7 @@ const CityAverages = ({ city, stations, onRefresh, isRefreshing, isLoading, canR
     return (
         <div className="rounded-xl bg-card border shadow-sm overflow-hidden animate-fade-in-up">
             {/* Header strip */}
-            <div className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+            <div ref={headerRef} className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                 <div className="flex items-center gap-2 text-primary-foreground">
                     <MapPin className="w-4 h-4" />
                     <span className="font-semibold text-sm tracking-wide">

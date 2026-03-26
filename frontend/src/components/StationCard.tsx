@@ -1,7 +1,7 @@
 import { MapPin, Navigation, Fuel, TrendingDown, Clock, MapPinned, ShoppingBag, Wifi, CreditCard, UtensilsCrossed, ChevronDown, Phone, Mail, Droplet, Car, Smartphone, Ticket, Sparkles, Zap, ShoppingCart } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { capitalizeFirst } from "../lib/utilts";
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import type { Station } from "../types";
 
 interface StationCardProps {
@@ -70,12 +70,12 @@ const SERVICE_COLORS: Record<string, string> = {
   "GPL ": "text-yellow-500",
 };
 
-const StationCard = ({
+const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
   station,
   cheapestPrice,
   isOverallCheapest,
   index,
-}: StationCardProps) => {
+}, ref) => {
   const { name, network, networkLogo, prices, lat, lon, updatedate, address, services = [], contactDetails } = station;
   const stationPrices = FUEL_ORDER.map(fuelName => {
     const found = prices.find(p => p.fuel === fuelName);
@@ -118,6 +118,7 @@ const StationCard = ({
 
   return (
     <div
+      ref={ref}
       className="group relative rounded-2xl bg-card border border-border/50 overflow-hidden shadow-[0_1px_4px_0_hsl(var(--foreground)/0.03),0_6px_20px_0_hsl(var(--foreground)/0.04)] hover:shadow-[0_4px_12px_0_hsl(var(--foreground)/0.06),0_12px_36px_0_hsl(var(--foreground)/0.08)] transition-[box-shadow,transform]"
       style={{
         animationDelay: `${80 + index * 70}ms`,
@@ -318,6 +319,8 @@ const StationCard = ({
       </div>
     </div>
   );
-};
+});
+
+StationCard.displayName = "StationCard";
 
 export default StationCard;

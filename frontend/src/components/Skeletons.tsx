@@ -19,12 +19,12 @@ export const ChartSkeleton = () => (
         ))}
       </div>
     </div>
-    <Skeleton className="h-[350px] sm:h-[420px] w-full rounded-xl" />
+    <Skeleton className="h-[280px] sm:h-[350px] w-full rounded-xl" />
   </div>
 );
 
 export const PriceCardSkeleton = () => (
-  <div className="bg-card rounded-2xl border border-border p-5">
+  <div className="bg-card rounded-2xl border border-border p-3">
     <Skeleton className="w-full h-1 rounded-full mb-4" />
     <Skeleton className="h-3 w-20 mb-3" />
     <Skeleton className="h-8 w-24 mb-2" />
@@ -39,7 +39,7 @@ export const TodayPricesSkeleton = () => (
   <div>
     <div className="flex items-center justify-between mb-6">
       <div>
-        <Skeleton className="h-6 w-44 mb-2" />
+        <Skeleton className="h-5 sm:h-6 w-24 sm:w-32 mb-2" />
         <Skeleton className="h-4 w-64" />
       </div>
       <Skeleton className="h-7 w-48 rounded-full" />
@@ -53,7 +53,7 @@ export const TodayPricesSkeleton = () => (
 );
 
 export const StationCardSkeleton = () => (
-  <div className="bg-card rounded-xl border border-border p-5">
+  <div className="bg-card rounded-xl border border-border p-4 sm:p-6">
     <div className="flex items-start gap-4">
       <Skeleton className="w-11 h-11 rounded-xl shrink-0" />
       <div className="flex-1">
