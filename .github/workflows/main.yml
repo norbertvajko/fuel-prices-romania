@@ -2,7 +2,7 @@ name: Run Fuel Scraper Daily
 
 on:
   schedule:
-    - cron: "0 18 * * *"  # 21:00 Romania time
+    - cron: "0 15 * * *"  
   workflow_dispatch:
 
 jobs:
