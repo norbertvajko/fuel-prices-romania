@@ -5,7 +5,7 @@ import CityAverages from "../components/CityAverages";
 import StationCard from "../components/StationCard";
 import { ChartSkeleton, StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
 import FuelLoader from "../components/FuelLoader";
-import { API_SEARCH_URL, DEFAULT_SORT } from "../constants";
+import { API_URL, DEFAULT_SORT } from "../constants";
 import type { Station, SearchResult } from "../types";
 import Footer from "../components/Footer";
 
@@ -25,32 +25,37 @@ const Index = () => {
   // Track last known city for skeleton display
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
 
-  // Fetch data from API
-  const doSearch = useCallback(async (params: string) => {
+  // Fetch data from your own API (not external API)
+  const doSearch = useCallback(async (city: string) => {
     setIsLoading(true);
     setStations([]);
     setHasSearched(true);
-
-    // Extract city from params for skeleton display during loading
-    const urlParams = new URLSearchParams(params);
-    const cityParam = urlParams.get("city");
-    if (cityParam) {
-      setLastCity(decodeURIComponent(cityParam));
-    }
+    setLastCity(city);
 
     try {
-      const res = await fetch(`${API_SEARCH_URL}?${params}`);
-      const data: SearchResult = await res.json();
+      // Call your own /stations endpoint instead of external API
+      const res = await fetch(`${API_URL}/stations?city=${encodeURIComponent(city)}`);
+      const data = await res.json();
 
       if (data.error) {
         console.error("Search error:", data.error);
         return;
       }
 
-      // Don't sort - use the API response directly
-      setStations(data.stations);
-      setCurrentCity(data.city);
-      setLastUpdated(data.last_updated);
+      // Transform data to match expected format
+      const transformedStations: Station[] = data.stations.map((station: any) => ({
+        name: station.name,
+        network: station.network,
+        address: station.address,
+        lat: station.lat,
+        lon: station.lon,
+        prices: station.prices || [],
+        services: [],
+      }));
+
+      setStations(transformedStations);
+      setCurrentCity(city);
+      setLastUpdated(new Date().toISOString());
     } catch (error) {
       console.error("API Error:", error);
     } finally {
@@ -60,9 +65,7 @@ const Index = () => {
 
   // Handle city search from HeroSection
   const handleSearchFromHero = (city: string) => {
-    // Don't filter by fuels - get all stations (like the original implementation)
-    const query = `city=${encodeURIComponent(city)}&sort=${DEFAULT_SORT}`;
-    doSearch(query);
+    doSearch(city);
 
     // Scroll to the CityAverages section
     setTimeout(() => {
@@ -76,9 +79,7 @@ const Index = () => {
   const handleRefresh = () => {
     if (!currentCity) return;
     setRefreshing(true);
-    // Don't filter by fuels - get all stations
-    const query = `city=${encodeURIComponent(currentCity)}&sort=${DEFAULT_SORT}`;
-    doSearch(query).finally(() => setRefreshing(false));
+    doSearch(currentCity).finally(() => setRefreshing(false));
   };
 
   return (
@@ -103,7 +104,7 @@ const Index = () => {
           />
         </section>
       )}
-        {/* Today's prices - Real data from API */}
+        {/* Today's prices - Real data from your API */}
         <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
           {isLoading || refreshing ? (
             <TodayPricesSkeleton />
@@ -119,7 +120,7 @@ const Index = () => {
           )}
         </section>
 
-        {/* Stations section - Real data from API */}
+        {/* Stations section - Real data from your API */}
         <section ref={stationsRef} className="max-w-6xl mx-auto px-4 mt-8">
           {isLoading ? (
             <StationListSkeleton />

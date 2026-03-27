@@ -3,3 +3,5 @@ httpx
 uvicorn
 requests
 psycopg2
+dotenv
+os

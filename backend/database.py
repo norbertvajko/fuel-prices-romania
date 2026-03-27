@@ -5,22 +5,12 @@ Database functions for price history storage.
 import psycopg2
 import os
 import logging
-from typing import Optional, List, Dict
-from dotenv import load_dotenv
-load_dotenv()
 
 logger = logging.getLogger("fuel_scraper")
 
 
 def get_connection():
-    return psycopg2.connect(
-        host="db.gajimjjpxjdkhmlcqkcq.supabase.co",
-        database="postgres",
-        user="postgres",
-        password=os.getenv("SUPABASE_DB_PASSWORD"),
-        port=5432,
-        sslmode="require"
-    )
+    return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 
 def init_db() -> None:
@@ -51,6 +41,33 @@ def init_db() -> None:
         )
     """)
 
+    # Create table for stations
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stations (
+            id SERIAL PRIMARY KEY,
+            city TEXT NOT NULL,
+            name TEXT NOT NULL,
+            network TEXT,
+            address TEXT,
+            lat REAL,
+            lon REAL,
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(city, name, address)
+        )
+    """)
+
+    # Create table for station prices
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS station_prices (
+            id SERIAL PRIMARY KEY,
+            station_id INTEGER REFERENCES stations(id) ON DELETE CASCADE,
+            fuel_type TEXT NOT NULL,
+            price REAL NOT NULL,
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(station_id, fuel_type, scraped_at)
+        )
+    """)
+
     # Create index for faster queries
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_city_timestamp 
@@ -60,6 +77,31 @@ def init_db() -> None:
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_national_timestamp 
         ON national_averages(timestamp)
+    """)
+
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_stations_city 
+        ON stations(city)
+    """)
+
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_station_prices_station_id 
+        ON station_prices(station_id)
+    """)
+
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_station_prices_fuel_type 
+        ON station_prices(fuel_type)
+    """)
+
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_station_prices_scraped_at 
+        ON station_prices(scraped_at)
+    """)
+
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_station_prices_station_fuel 
+        ON station_prices(station_id, fuel_type)
     """)
 
     conn.commit()
@@ -224,5 +266,239 @@ def get_national_average_history(days: int = 30) -> list:
     return history
 
 
-# Initialize database on module import
-init_db()
+# ============================================================================
+# STATION FUNCTIONS
+# ============================================================================
+
+def save_station(city: str, name: str, network: str, address: str, lat: float, lon: float) -> int:
+    """
+    Save a station to the database.
+    Uses INSERT ON CONFLICT DO NOTHING to skip duplicates.
+
+    Args:
+        city: The city name
+        name: Station name
+        network: Fuel network (e.g., "Petrom", "OMV")
+        address: Station address
+        lat: Latitude
+        lon: Longitude
+
+    Returns:
+        Station ID
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Insert or get existing station
+    cursor.execute(
+        """
+        INSERT INTO stations (city, name, network, address, lat, lon, scraped_at)
+        VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+        ON CONFLICT (city, name, address) DO UPDATE SET
+            network = EXCLUDED.network,
+            lat = EXCLUDED.lat,
+            lon = EXCLUDED.lon,
+            scraped_at = CURRENT_TIMESTAMP
+        RETURNING id
+    """,
+        (city, name, network, address, lat, lon),
+    )
+
+    station_id = cursor.fetchone()[0]
+    conn.commit()
+    conn.close()
+
+    return station_id
+
+
+def save_station_price(station_id: int, fuel_type: str, price: float) -> None:
+    """
+    Save a station price to the database.
+    Uses INSERT ON CONFLICT DO NOTHING to skip duplicates.
+
+    Args:
+        station_id: Station ID
+        fuel_type: Fuel type (e.g., "diesel", "b95")
+        price: Price in lei
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO station_prices (station_id, fuel_type, price, scraped_at)
+        VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+        ON CONFLICT (station_id, fuel_type, scraped_at) DO NOTHING
+    """,
+        (station_id, fuel_type, price),
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_stations_by_city(city: str, limit: int = 100) -> list:
+    """
+    Get stations for a city from the database.
+
+    Args:
+        city: The city name
+        limit: Maximum number of stations to return (default 100)
+
+    Returns:
+        List of station dicts with prices
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Get stations with their latest prices
+    cursor.execute(
+        """
+        SELECT 
+            s.id,
+            s.name,
+            s.network,
+            s.address,
+            s.lat,
+            s.lon,
+            sp.fuel_type,
+            sp.price
+        FROM stations s
+        LEFT JOIN station_prices sp ON s.id = sp.station_id
+        WHERE s.city = %s
+        AND sp.scraped_at = (
+            SELECT MAX(sp2.scraped_at)
+            FROM station_prices sp2
+            WHERE sp2.station_id = s.id
+        )
+        ORDER BY s.name
+        LIMIT %s
+    """,
+        (city, limit),
+    )
+
+    results = cursor.fetchall()
+    conn.close()
+
+    # Group by station
+    stations = {}
+    for row in results:
+        station_id = row[0]
+        if station_id not in stations:
+            stations[station_id] = {
+                "id": station_id,
+                "name": row[1],
+                "network": row[2],
+                "address": row[3],
+                "lat": row[4],
+                "lon": row[5],
+                "prices": [],
+            }
+
+        if row[6] and row[7]:  # fuel_type and price
+            stations[station_id]["prices"].append({
+                "fuel": row[6],
+                "price": row[7],
+            })
+
+    return list(stations.values())
+
+
+def get_station_prices_by_city(city: str, days: int = 30) -> list:
+    """
+    Get station prices for a city from the database.
+
+    Args:
+        city: The city name
+        days: Number of days to look back (default 30)
+
+    Returns:
+        List of {date, fuel_type, price} objects
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT 
+            DATE(sp.scraped_at) as date,
+            sp.fuel_type,
+            AVG(sp.price) as avg_price
+        FROM station_prices sp
+        JOIN stations s ON sp.station_id = s.id
+        WHERE s.city = %s
+        AND sp.scraped_at >= CURRENT_TIMESTAMP - INTERVAL '%s days'
+        GROUP BY DATE(sp.scraped_at), sp.fuel_type
+        ORDER BY date ASC
+    """,
+        (city, days),
+    )
+
+    results = cursor.fetchall()
+    conn.close()
+
+    history = []
+    for row in results:
+        history.append({"date": row[0], "fuel_type": row[1], "price": round(row[2], 2)})
+
+    return history
+
+
+def get_available_cities() -> list:
+    """
+    Get list of cities that have station data.
+
+    Returns:
+        List of city names
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT DISTINCT city
+        FROM stations
+        ORDER BY city
+    """
+    )
+
+    results = cursor.fetchall()
+    conn.close()
+
+    return [row[0] for row in results]
+
+
+def clear_old_station_data(days: int = 30) -> None:
+    """
+    Clear old station data to keep database clean.
+    Keeps only the last N days of data.
+
+    Args:
+        days: Number of days to keep (default 30)
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Delete old station prices
+    cursor.execute(
+        """
+        DELETE FROM station_prices
+        WHERE scraped_at < CURRENT_TIMESTAMP - INTERVAL '%s days'
+    """,
+        (days,),
+    )
+
+    # Delete stations that have no prices
+    cursor.execute(
+        """
+        DELETE FROM stations
+        WHERE id NOT IN (
+            SELECT DISTINCT station_id
+            FROM station_prices
+        )
+    """
+    )
+
+    conn.commit()
+    conn.close()
+    logger.info("Cleared old station data (kept last %d days)", days)

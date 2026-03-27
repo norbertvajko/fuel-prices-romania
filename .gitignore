@@ -1,0 +1,9 @@
+.env
+env
+SETUP_GUIDE.md
+run_scraper.py
+setup_database.py
+backend/config.py
+backend/database.py
+backend/migrations/migrate.py
+backend/routes/__init__.py 

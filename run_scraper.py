@@ -6,6 +6,10 @@ Run this script to fetch and save price data directly to the database.
 import asyncio
 import sys
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables FIRST, before importing any backend modules
+load_dotenv()
 
 from backend.services.scheduler import fetch_and_save_national_average
 
