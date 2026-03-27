@@ -5,8 +5,8 @@ import CityAverages from "../components/CityAverages";
 import StationCard from "../components/StationCard";
 import { ChartSkeleton, StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
 import FuelLoader from "../components/FuelLoader";
-import { API_URL, DEFAULT_SORT } from "../constants";
-import type { Station, SearchResult } from "../types";
+import { API_URL } from "../constants";
+import type { Station } from "../types";
 import Footer from "../components/Footer";
 
 const Index = () => {
