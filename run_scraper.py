@@ -23,6 +23,16 @@ async def run_scraper():
     print("Starting fuel price scraper...")
     print("Fetching prices for all major cities...")
     
+    # Check if DATABASE_URL is set
+    import os
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        print("✗ Error: DATABASE_URL environment variable is not set")
+        logger.error("DATABASE_URL environment variable is not set")
+        return False
+    
+    print(f"✓ DATABASE_URL is set (length: {len(database_url)})")
+    
     try:
         result = await fetch_and_save_national_average()
         
@@ -34,12 +44,14 @@ async def run_scraper():
             print(f"\n  National Average Prices:")
             for fuel, price in national_avg.items():
                 print(f"    {fuel}: {price:.3f} lei")
+        else:
+            print("\n⚠ Warning: No national average prices were calculated")
         
         return True
         
     except Exception as e:
         print(f"✗ Error: {e}")
-        logger.error("Scraper failed: %s", e)
+        logger.error("Scraper failed: %s", e, exc_info=True)
         return False
 
 

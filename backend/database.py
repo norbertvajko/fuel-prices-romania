@@ -71,27 +71,37 @@ def save_price_history(city: str, prices: dict) -> None:
         prices: Dict with fuel types as keys and prices as values
                e.g., { "benzina": 7.50, "motorina": 7.80, "gpl": 4.50 }
     """
-    conn = get_connection()
-    cursor = conn.cursor()
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    saved_count = 0
-    for fuel_type, price in prices.items():
-        if price and price != float("inf"):
-            # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
-            cursor.execute(
-                """
-                INSERT INTO price_history (city, fuel_type, price, timestamp)
-                VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
-                ON CONFLICT (city, fuel_type, timestamp) DO NOTHING
-            """,
-                (city, fuel_type, price),
-            )
-            if cursor.rowcount > 0:
-                saved_count += 1
+        saved_count = 0
+        for fuel_type, price in prices.items():
+            if price and price != float("inf"):
+                # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
+                cursor.execute(
+                    """
+                    INSERT INTO price_history (city, fuel_type, price, timestamp)
+                    VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+                    ON CONFLICT (city, fuel_type, timestamp) DO NOTHING
+                """,
+                    (city, fuel_type, price),
+                )
+                if cursor.rowcount > 0:
+                    saved_count += 1
 
-    conn.commit()
-    conn.close()
-    logger.info("Saved price history for city: %s (%d new records)", city, saved_count)
+        conn.commit()
+        conn.close()
+        logger.info("Saved price history for city: %s (%d new records)", city, saved_count)
+    except Exception as e:
+        logger.error(f"Failed to save price history for city {city}: {e}", exc_info=True)
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+        raise
 
 
 def get_price_history(city: str, days: int = 30) -> list:
@@ -154,27 +164,37 @@ def save_national_average(prices: dict) -> None:
         prices: Dict with fuel types as keys and average prices as values
                e.g., { "diesel": 7.50, "b95": 7.80, "b98": 8.20, "gpl": 4.50 }
     """
-    conn = get_connection()
-    cursor = conn.cursor()
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    saved_count = 0
-    for fuel_type, price in prices.items():
-        if price and price != float("inf"):
-            # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
-            cursor.execute(
-                """
-                INSERT INTO national_averages (fuel_type, price, timestamp)
-                VALUES (%s, %s, CURRENT_TIMESTAMP)
-                ON CONFLICT (fuel_type, timestamp) DO NOTHING
-            """,
-                (fuel_type, price),
-            )
-            if cursor.rowcount > 0:
-                saved_count += 1
+        saved_count = 0
+        for fuel_type, price in prices.items():
+            if price and price != float("inf"):
+                # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
+                cursor.execute(
+                    """
+                    INSERT INTO national_averages (fuel_type, price, timestamp)
+                    VALUES (%s, %s, CURRENT_TIMESTAMP)
+                    ON CONFLICT (fuel_type, timestamp) DO NOTHING
+                """,
+                    (fuel_type, price),
+                )
+                if cursor.rowcount > 0:
+                    saved_count += 1
 
-    conn.commit()
-    conn.close()
-    logger.info("Saved national average prices: %s (%d new records)", prices, saved_count)
+        conn.commit()
+        conn.close()
+        logger.info("Saved national average prices: %s (%d new records)", prices, saved_count)
+    except Exception as e:
+        logger.error(f"Failed to save national average prices: {e}", exc_info=True)
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+        raise
 
 
 def get_national_average_history(days: int = 30) -> list:

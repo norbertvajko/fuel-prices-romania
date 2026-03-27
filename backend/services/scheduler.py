@@ -116,7 +116,14 @@ async def fetch_and_save_national_average() -> dict:
     
     # Save national average to database
     if national_avg:
-        save_national_average(national_avg)
+        try:
+            save_national_average(national_avg)
+            logger.info(f"Successfully saved national average to database: {national_avg}")
+        except Exception as e:
+            logger.error(f"Failed to save national average to database: {e}", exc_info=True)
+            # Don't fail the entire operation, just log the error
+    else:
+        logger.warning("No national average prices to save to database")
     
     success_count = sum(1 for r in city_results if r.get("status") == "success")
     
