@@ -158,7 +158,6 @@ async def search_city(
             station_seen_services[sid].add(svc_name)
             station_map[sid]["services"].append({
                 "name": svc_name,
-                "logo": (svc.get("logo") or {}).get("logouri", ""),
             })
 
     stations_list = list(station_map.values())

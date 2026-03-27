@@ -36,35 +36,88 @@ export const PriceCardSkeleton = () => (
 );
 
 export const TodayPricesSkeleton = () => (
-  <div>
-    <div className="flex items-center justify-between mb-6">
-      <div>
-        <Skeleton className="h-5 sm:h-6 w-24 sm:w-32 mb-2" />
-        <Skeleton className="h-4 w-64" />
-      </div>
-      <Skeleton className="h-7 w-48 rounded-full" />
+  <div className="rounded-xl bg-card border shadow-sm overflow-hidden animate-pulse">
+    {/* Header strip */}
+    <div className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3">
+      <div className="h-5 sm:h-6 w-24 sm:w-32 bg-primary/20 rounded" />
     </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    {/* Price cards grid */}
+    <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
       {Array.from({ length: 5 }).map((_, i) => (
-        <PriceCardSkeleton key={i} />
+        <div key={i} className="rounded-lg border bg-background p-3 flex flex-col items-center gap-2">
+          <Skeleton className="w-8 h-10 rounded" />
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-5 w-12" />
+          <Skeleton className="h-2 w-20" />
+        </div>
       ))}
     </div>
   </div>
 );
 
 export const StationCardSkeleton = () => (
-  <div className="bg-card rounded-xl border border-border p-4 sm:p-6">
-    <div className="flex items-start gap-4">
-      <Skeleton className="w-11 h-11 rounded-xl shrink-0" />
-      <div className="flex-1">
-        <Skeleton className="h-5 w-40 mb-2" />
-        <Skeleton className="h-3 w-64 mb-3" />
-        <div className="flex gap-3">
-          <Skeleton className="h-8 w-20 rounded-lg" />
-          <Skeleton className="h-8 w-20 rounded-lg" />
-          <Skeleton className="h-8 w-20 rounded-lg" />
+  <div className="group relative rounded-2xl bg-card border border-border/50 overflow-hidden shadow-[0_1px_4px_0_hsl(var(--foreground)/0.03),0_6px_20px_0_hsl(var(--foreground)/0.04)]">
+    <div className="p-4 sm:p-6 pb-5">
+      {/* Header with name and network */}
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+          <Skeleton className="h-4 w-56" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+        <div className="shrink-0 text-right">
+          <Skeleton className="h-11 w-11 rounded" />
         </div>
       </div>
+
+      {/* Bar chart */}
+      <div className="mt-4 -mx-1 h-28 w-full">
+        <Skeleton className="h-full w-full rounded" />
+      </div>
+
+      {/* Fuel price pills - 6 pills to match fully loaded state */}
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        <Skeleton className="h-9 w-28 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
+      </div>
+
+      {/* Services section - 5 services to match fully loaded state */}
+      <div className="mt-5 pt-4 border-t border-border/40">
+        <Skeleton className="h-3 w-16 mb-2.5" />
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-7 w-16 rounded-lg" />
+          <Skeleton className="h-7 w-20 rounded-lg" />
+          <Skeleton className="h-7 w-14 rounded-lg" />
+          <Skeleton className="h-7 w-18 rounded-lg" />
+          <Skeleton className="h-7 w-16 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Contact section - expanded state */}
+      <div className="my-4">
+        <Skeleton className="h-4 w-28 mb-2" />
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+
+      {/* Inline Map */}
+      <div className="mb-3">
+        <Skeleton className="h-[220px] w-full rounded-xl" />
+      </div>
+    </div>
+
+    {/* Footer actions */}
+    <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-muted/30">
+      <Skeleton className="h-8 w-16 rounded-lg" />
+      <Skeleton className="h-8 w-20 rounded-lg" />
+      <Skeleton className="h-8 w-14 rounded-lg" />
     </div>
   </div>
 );

@@ -41,6 +41,7 @@ async def fetch_and_save_city_prices(city: str) -> dict:
     
     stations = data.get("Stations", [])
     products = data.get("Products", [])
+    services = data.get("services", [])
     
     # Map products to stations (same logic as search.py)
     station_map = {s.get("id"): s for s in stations if s.get("id")}
@@ -57,6 +58,23 @@ async def fetch_and_save_city_prices(city: str) -> dict:
                 "fuel": fuel_name,
                 "price": p.get("price") or 0,
             })
+    
+    # Map services to stations (with deduplication)
+    for svc in services:
+        sid = svc.get("stationid")
+        if sid and sid in station_map:
+            if "services" not in station_map[sid]:
+                station_map[sid]["services"] = []
+            
+            # Get service name (only save name, not logo)
+            svc_name = svc.get("name", "")
+            
+            # Check if this service already exists for this station
+            existing_names = {s.get("name", "") for s in station_map[sid]["services"]}
+            if svc_name and svc_name not in existing_names:
+                station_map[sid]["services"].append({
+                    "name": svc_name,
+                })
     
     # Calculate averages
     fuel_prices = {
@@ -93,7 +111,7 @@ async def fetch_and_save_city_prices(city: str) -> dict:
         # Get updatedate
         updatedate_val = station.get("updatedate", "")
         
-        # Get services
+        # Get services (already mapped to station)
         services_val = station.get("services", [])
         
         # Get contact details

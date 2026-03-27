@@ -45,11 +45,14 @@ const Index = () => {
       const transformedStations: Station[] = data.stations.map((station: any) => ({
         name: station.name,
         network: station.network,
+        networkLogo: station.networkLogo,
         address: station.address,
         lat: station.lat,
         lon: station.lon,
         prices: station.prices || [],
-        services: [],
+        services: station.services || [],
+        updatedate: station.updatedate,
+        contactDetails: station.contactDetails,
       }));
 
       setStations(transformedStations);
@@ -103,45 +106,45 @@ const Index = () => {
           />
         </section>
       )}
-        {/* Today's prices - Real data from your API */}
-        <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
-          {isLoading || refreshing ? (
-            <TodayPricesSkeleton />
-          ) : (
-            <CityAverages
-              city={lastCity || currentCity || ""}
-              stations={stations}
-              onRefresh={handleRefresh}
-              isRefreshing={refreshing}
-              isLoading={isLoading}
-              lastUpdated={lastUpdated}
-            />
-          )}
-        </section>
+      {/* Today's prices - Real data from your API */}
+      <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
+        {isLoading || refreshing ? (
+          <TodayPricesSkeleton />
+        ) : (
+          <CityAverages
+            city={lastCity || currentCity || ""}
+            stations={stations}
+            onRefresh={handleRefresh}
+            isRefreshing={refreshing}
+            isLoading={isLoading}
+            lastUpdated={lastUpdated}
+          />
+        )}
+      </section>
 
-        {/* Stations section - Real data from your API */}
-        <section ref={stationsRef} className="max-w-6xl mx-auto px-4 mt-8">
-          {isLoading ? (
-            <StationListSkeleton />
-          ) : stations.length > 0 ? (
-            <div className="space-y-4">
-              {stations.map((station, index) => (
-                <StationCard
-                  key={station.name + index}
-                  station={station}
-                  cheapestPrice={0}
-                  isOverallCheapest={false}
-                  index={index}
-                  ref={index === 0 ? firstStationCardRef : null}
-                />
-              ))}
-            </div>
-          ) : hasSearched ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
-            </div>
-          ) : null}
-        </section>
+      {/* Stations section - Real data from your API */}
+      <section ref={stationsRef} className="max-w-6xl mx-auto px-4 mt-8">
+        {isLoading ? (
+          <StationListSkeleton />
+        ) : stations.length > 0 ? (
+          <div className="space-y-4">
+            {stations.map((station, index) => (
+              <StationCard
+                key={station.name + index}
+                station={station}
+                cheapestPrice={0}
+                isOverallCheapest={false}
+                index={index}
+                ref={index === 0 ? firstStationCardRef : null}
+              />
+            ))}
+          </div>
+        ) : hasSearched ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
+          </div>
+        ) : null}
+      </section>
       <Footer />
     </div>
   );

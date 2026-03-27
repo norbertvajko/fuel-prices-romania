@@ -35,7 +35,7 @@ export interface Station {
 // Service offered by station
 export interface Service {
   name: string;
-  logo: string;
+  logo?: string;
 }
 
 // Search result from API

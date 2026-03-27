@@ -399,7 +399,7 @@ def get_stations_by_city(city: str, limit: int = 100) -> list:
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Get stations with their latest prices
+    # Get stations with their latest prices for each fuel type
     cursor.execute(
         """
         SELECT 
@@ -417,11 +417,11 @@ def get_stations_by_city(city: str, limit: int = 100) -> list:
             sp.price
         FROM stations s
         LEFT JOIN station_prices sp ON s.id = sp.station_id
-        WHERE s.city = %s
+        WHERE LOWER(s.city) = LOWER(%s)
         AND sp.scraped_at = (
             SELECT MAX(sp2.scraped_at)
             FROM station_prices sp2
-            WHERE sp2.station_id = s.id
+            WHERE sp2.station_id = s.id AND sp2.fuel_type = sp.fuel_type
         )
         ORDER BY s.name
         LIMIT %s
@@ -489,7 +489,7 @@ def get_station_prices_by_city(city: str, days: int = 30) -> list:
             AVG(sp.price) as avg_price
         FROM station_prices sp
         JOIN stations s ON sp.station_id = s.id
-        WHERE s.city = %s
+        WHERE LOWER(s.city) = LOWER(%s)
         AND sp.scraped_at >= CURRENT_TIMESTAMP - INTERVAL '%s days'
         GROUP BY DATE(sp.scraped_at), sp.fuel_type
         ORDER BY date ASC

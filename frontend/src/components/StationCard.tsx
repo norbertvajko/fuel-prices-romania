@@ -1,8 +1,9 @@
-import { MapPin, Navigation, Fuel, TrendingDown, Clock, MapPinned, ShoppingBag, Wifi, CreditCard, UtensilsCrossed, ChevronDown, Phone, Mail, Droplet, Car, Smartphone, Ticket, Sparkles, Zap, ShoppingCart } from "lucide-react";
+import { MapPin, Navigation, Fuel, TrendingDown, Clock, ShoppingBag, Wifi, CreditCard, UtensilsCrossed, ChevronDown, Phone, Mail, Droplet, Car, Smartphone, Ticket, Sparkles, Zap, ShoppingCart, Map, MapPinned } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { capitalizeFirst } from "../lib/utilts";
 import { useState, forwardRef } from "react";
 import type { Station } from "../types";
+import StationMap from "./StationMap";
 
 interface StationCardProps {
   station: Station;
@@ -54,6 +55,7 @@ const SERVICE_ICONS: Record<string, typeof Wifi> = {
   "Vigneta": Ticket,
   "Spalatorie auto": Sparkles,
   "GPL ": Zap,
+  "Bancomat": CreditCard,
 };
 
 const SERVICE_COLORS: Record<string, string> = {
@@ -68,6 +70,7 @@ const SERVICE_COLORS: Record<string, string> = {
   "Vigneta": "text-purple-500",
   "Spalatorie auto": "text-cyan-500",
   "GPL ": "text-yellow-500",
+  "Bancomat": "text-indigo-500",
 };
 
 const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
@@ -82,10 +85,10 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
     return { fuel: fuelName, price: found?.price ?? null };
   });
 
-  // Filter to only include prices that exist
   const validStationPrices = stationPrices.filter(p => p.price !== null);
 
   const [expanded, setExpanded] = useState(false);
+  const [showMap, setShowMap] = useState(true);
 
   const chartData = validStationPrices.map(p => ({
     name: shortLabel(p.fuel),
@@ -96,21 +99,13 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
 
   const hasDetails = services?.length || contactDetails;
 
-  // Parse contactDetails to extract phone and email
   const getContactInfo = (details: string) => {
     if (!details) return { phone: "", email: "" };
-
-    // Extract phone (look for tel: or phone patterns)
-    // Supports: tel: 037 1000 008, 0371000008, +40 370 000 000, etc.
     const phoneMatch = details.match(/(?:tel[:\s]*)?(\+?40|0)[\d\s-]{8,12}/i);
     let phone = phoneMatch ? phoneMatch[0].replace(/^tel[:\s]*/i, "").trim() : "";
-    // Clean up extra spaces
     phone = phone.replace(/\s+/g, " ").trim();
-
-    // Extract email
     const emailMatch = details.match(/[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/);
     const email = emailMatch ? emailMatch[0] : "";
-
     return { phone, email };
   };
 
@@ -261,7 +256,7 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
 
         {/* Contact (expandable) */}
         {hasDetails && contactDetails && (
-          <div className="mt-4">
+          <div className="my-4">
             <button
               onClick={() => setExpanded(!expanded)}
               className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors active:scale-[0.97]"
@@ -276,44 +271,38 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
             )}
           </div>
         )}
+
+        {/* Inline Map */}
+        {showMap && lat && lon && (
+          <div className="mb-3 animate-in slide-in-from-top-2 fade-in duration-300">
+            <StationMap lat={lat} lon={lon} name={name} network={network} />
+          </div>
+        )}
       </div>
 
       {/* Footer actions */}
-      <div className="flex flex-wrap gap-2 border-t border-border/40 bg-muted/20 px-4 py-3 sm:px-6">
-        <a
-          href={`https://www.google.com/maps?q=${lat},${lon}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
+      <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-muted/30">
+        <button
+          onClick={() => setShowMap(!showMap)}
+          className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${showMap ? "text-primary" : "text-primary/70 hover:text-primary"}`}
         >
-          <MapPin className="h-4 w-4" />
-          <span className="hidden sm:inline">Hartă</span>
-        </a>
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
-        >
-          <Navigation className="h-4 w-4" />
-          <span className="hidden sm:inline">Navigare</span>
+          <Map className="w-4 h-4" />
+          Hartă
+        </button>
+        <a href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+          <Navigation className="w-4 h-4" />
+          Navigare
         </a>
         {phone && (
-          <a
-            href={`tel:${phone}`}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
-          >
-            <Phone className="h-4 w-4" />
-            <span className="hidden sm:inline">Sună</span>
+          <a href={`tel:${phone}`} className="flex items-center gap-1.5 text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+            <Phone className="w-4 h-4" />
+            Sună
           </a>
         )}
         {email && (
-          <a
-            href={`mailto:${email}`}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/8 transition-colors active:scale-[0.97]"
-          >
-            <Mail className="h-4 w-4" />
-            <span className="hidden sm:inline">Email</span>
+          <a href={`mailto:${email}`} className="flex items-center gap-1.5 text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+            <Mail className="w-4 h-4" />
+            Email
           </a>
         )}
       </div>

@@ -102,10 +102,22 @@ async def get_prices_by_uat(uat_id: str, product_ids: Optional[list] = None) -> 
         combined_products.extend(products)
         combined_services.extend(services)
     
+    # Deduplicate services by ID
+    seen_service_ids = set()
+    unique_services = []
+    for service in combined_services:
+        service_id = service.get("id")
+        if service_id and service_id not in seen_service_ids:
+            seen_service_ids.add(service_id)
+            unique_services.append(service)
+        elif not service_id:
+            # Keep services without ID (shouldn't happen, but just in case)
+            unique_services.append(service)
+    
     combined_stations = list(station_map.values())
     
     return {
         "Stations": combined_stations,
         "Products": combined_products,
-        "services": combined_services
+        "services": unique_services
     }
