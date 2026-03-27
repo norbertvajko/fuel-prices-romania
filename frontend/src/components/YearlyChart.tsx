@@ -62,7 +62,6 @@ const YearlyChart = ({
   onProgress?: (progress: number) => void;
 } = {}) => {
   const [data, setData] = useState<ReturnType<typeof transformData>>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,7 +90,6 @@ const YearlyChart = ({
         onProgress?.(100);
       } finally {
         clearInterval(progressInterval);
-        setLoading(false);
         onLoadingComplete?.();
       }
     };
@@ -99,37 +97,9 @@ const YearlyChart = ({
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <section className="w-full mx-auto px-3 sm:px-4 mt-4 sm:-mt-12 relative z-10 max-w-[850px]">        <div className="bg-card rounded-2xl border border-border p-4 sm:p-8 shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              <div className="h-5 sm:h-6 w-40 sm:w-48 bg-muted rounded animate-pulse" />
-            </div>
-            <div className="h-3 sm:h-4 w-52 sm:w-64 bg-muted rounded animate-pulse mt-2" />
-          </div>
-
-          <div className="flex flex-wrap gap-2 sm:gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-muted" />
-                <div className="h-2.5 sm:h-3 w-8 sm:w-12 bg-muted rounded" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="h-[320px] sm:h-[350px] w-full bg-muted/30 rounded-lg animate-pulse" />
-      </div>
-      </section>
-    );
-  }
-
   if (data.length === 0) {
     return (
-      <section className="w-full mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-[850px]">
+      <section className="mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-[950px]">
         <div className="bg-card rounded-2xl border border-border p-4 sm:p-8 shadow-lg">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
             <div>
@@ -160,7 +130,7 @@ const YearlyChart = ({
             </div>
           </div>
 
-          <div className="h-[320px] sm:h-[350px] flex items-center justify-center">
+          <div className="h-[280px] sm:h-[350px] flex items-center justify-center">
             <p className="text-muted-foreground text-xs sm:text-sm text-center">
               Nu există date istorice disponibile
             </p>
@@ -171,7 +141,7 @@ const YearlyChart = ({
   }
 
   return (
-    <section className="w-full mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-[850px]">
+    <section className="mx-auto px-4 sm:px-6 -mt-10 sm:-mt-12 relative z-10 max-w-[950px]">
       <div className="bg-card rounded-2xl border border-border p-4 sm:p-8 shadow-lg">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
@@ -188,14 +158,14 @@ const YearlyChart = ({
           </div>
 
           {/* Legend (compact but full) */}
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
             {fuelTypes.map((fuel) => (
               <div
                 key={fuel.key}
-                className="flex items-center gap-1.5 text-[10px] sm:text-xs whitespace-nowrap"
+                className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs whitespace-nowrap"
               >
                 <div
-                  className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full"
+                  className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: fuel.color }}
                 />
                 <span className="font-medium">{fuel.label}</span>
@@ -207,11 +177,11 @@ const YearlyChart = ({
         {/* Chart */}
         <ChartContainer
           config={chartConfig}
-          className="h-[320px] sm:h-[350px] w-full overflow-visible"
+          className="h-[280px] sm:h-[350px] w-full overflow-visible"
         >
           <AreaChart
             data={data}
-            margin={{ top: 10, right: 5, left: -15, bottom: 0 }}
+            margin={{ top: 10, right: 5, left: -10, bottom: 0 }}
           >
             <defs>
               {fuelTypes.map((fuel) => (
@@ -247,16 +217,16 @@ const YearlyChart = ({
               dataKey="date"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
               interval="preserveStartEnd"
-              minTickGap={20}
+              minTickGap={15}
             />
 
             <YAxis
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-              width={50}
+              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+              width={40}
               tickFormatter={(v) => `${v}`}
             />
 

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
 from ..database import get_price_history, clear_price_history, get_national_average_history
-from ..services.scheduler import update_all_cities, fetch_and_save_national_average, get_national_trends, MAJOR_CITIES
+from ..services.scheduler import fetch_and_save_national_average, get_national_trends, MAJOR_CITIES
 
 logger = logging.getLogger("fuel_scraper")
 
@@ -40,28 +40,6 @@ async def clear_price_history_endpoint():
     except Exception as e:
 
         return JSONResponse(status_code=500, content={"error": "Failed to clear price history"})
-
-
-@router.post("/price-history/update-all")
-async def update_all_cities_endpoint():
-    """
-    Fetch and save prices for all major cities.
-    This endpoint is intended to be called by a cron job daily.
-    It also calculates and saves national average prices.
-    """
-    try:
-
-        result = await fetch_and_save_national_average()
-        
-        return {
-            "message": f"Updated prices for {result['cities_updated']} cities",
-            "total_cities": result['total_cities'],
-            "successful": result['cities_updated'],
-            "national_average": result['national_average']
-        }
-    except Exception as e:
-
-        return JSONResponse(status_code=500, content={"error": f"Failed to update prices: {str(e)}"})
 
 
 @router.get("/price-history/national")

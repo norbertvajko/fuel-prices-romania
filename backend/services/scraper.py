@@ -32,10 +32,13 @@ async def get_uat_id(city: str) -> str:
         data = resp.json()
         items = data.get("Items", [])
         if not items:
+            logger.error(f"No UAT found for city '{city}'. API response: {data}")
             raise ValueError(f"No UAT found for city '{city}'")
         uat_id = items[0].get("id")
         if not uat_id:
+            logger.error(f"No ID in UAT data for '{city}'. Item: {items[0]}")
             raise ValueError(f"No ID in UAT data for '{city}'")
+        logger.info(f"Found UAT ID {uat_id} for city '{city}'")
         return str(uat_id)
 
 
@@ -55,6 +58,7 @@ async def get_prices_by_product(uat_id: str, product_id: int) -> dict:
         resp = await client.get(url, headers=HEADERS)
         resp.raise_for_status()
         data = resp.json()
+        logger.info(f"Fetched prices for UAT ID {uat_id}, product ID {product_id}. Response keys: {list(data.keys()) if isinstance(data, dict) else 'not a dict'}")
         return data if isinstance(data, dict) else {}
 
 
@@ -79,7 +83,7 @@ async def get_prices_by_uat(uat_id: str, product_ids: Optional[list] = None) -> 
             data = await get_prices_by_product(uat_id, product_id)
             all_data.append(data)
         except Exception as e:
-            pass
+            logger.warning(f"Failed to fetch prices for UAT ID {uat_id}, product ID {product_id}: {e}")
 
     # Combine all stations from all responses (merge by station ID)
     station_map = {}
@@ -90,6 +94,11 @@ async def get_prices_by_uat(uat_id: str, product_ids: Optional[list] = None) -> 
         stations = data.get("Stations", [])
         products = data.get("Products", [])
         services = data.get("services", [])
+        
+        # Debug logging for services
+        logger.info(f"Product ID response - Stations: {len(stations)}, Products: {len(products)}, Services: {len(services)}")
+        if services:
+            logger.info(f"Sample service from response: {services[0]}")
         
         # Merge stations by ID
         for station in stations:
@@ -102,17 +111,25 @@ async def get_prices_by_uat(uat_id: str, product_ids: Optional[list] = None) -> 
         combined_products.extend(products)
         combined_services.extend(services)
     
-    # Deduplicate services by ID
-    seen_service_ids = set()
+    # Debug logging for combined services
+    logger.info(f"Combined services before deduplication: {len(combined_services)}")
+    
+    # Deduplicate services by (station_id, service_id) to preserve association
+    seen_service_station_pairs = set()
     unique_services = []
     for service in combined_services:
         service_id = service.get("id")
-        if service_id and service_id not in seen_service_ids:
-            seen_service_ids.add(service_id)
+        station_id = service.get("stationid")
+        pair_key = (station_id, service_id)
+        
+        if pair_key not in seen_service_station_pairs:
+            seen_service_station_pairs.add(pair_key)
             unique_services.append(service)
-        elif not service_id:
-            # Keep services without ID (shouldn't happen, but just in case)
-            unique_services.append(service)
+    
+    # Debug logging for unique services
+    logger.info(f"Unique services after deduplication: {len(unique_services)}")
+    if unique_services:
+        logger.info(f"Sample unique service: {unique_services[0]}")
     
     combined_stations = list(station_map.values())
     

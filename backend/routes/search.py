@@ -6,7 +6,6 @@ from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
 from ..config import FUEL_FILTER_MAP, FUEL_NAME_MAP, FUEL_PRODUCT_IDS
-from ..database import save_price_history
 from ..services import (
     get_uat_id,
     get_prices_by_uat,
@@ -98,6 +97,11 @@ async def search_city(
     stations = data.get("Stations", [])
     products = data.get("Products", [])
     services = data.get("services", [])
+    
+    # Debug logging for services
+    logger.info(f"City: {city}, Stations: {len(stations)}, Products: {len(products)}, Services: {len(services)}")
+    if services:
+        logger.info(f"Sample service: {services[0]}")
 
     # Step 3: Map products and services to stations
     station_map = {s.get("id"): s for s in stations if s.get("id")}
@@ -162,6 +166,10 @@ async def search_city(
 
     stations_list = list(station_map.values())
     
+    # Debug logging for services in stations
+    stations_with_services = sum(1 for s in stations_list if s.get("services"))
+    logger.info(f"Stations with services: {stations_with_services}/{len(stations_list)}")
+    
     # Get the fuel names we're filtering for (grouped by filter type)
     # Only filter if not all 4 fuels are selected
     all_fuels = {"benzina", "motorina", "gpl", "electric"}
@@ -187,54 +195,34 @@ async def search_city(
             return all(any(item in station_items for item in group) for group in filter_lower)
         stations_list = [s for s in stations_list if station_has_required_fuels(s)]
     
-    # Sort by distance if we have coordinates
-    if original_lat is not None and original_lon is not None:
-        def get_station_distance(s):
+    # Sort by diesel price first (lowest first), then by distance
+    def get_sort_key(s):
+        # Get diesel price (motorina) - handle both Romanian and English names
+        diesel_price = float('inf')
+        for p in s.get("prices", []):
+            fuel_name = p.get("fuel", "")
+            fuel_name_lower = fuel_name.lower()
+            # Check for diesel/motorina in various forms
+            if any(d in fuel_name_lower for d in ["motorin", "diesel"]):
+                price = p.get("price", 0)
+                if price and price > 0:
+                    diesel_price = min(diesel_price, price)
+        
+        # Get distance if coordinates available
+        distance = float('inf')
+        if original_lat is not None and original_lon is not None:
             addr_data = s.get("addr", {})
             location_data = addr_data.get("location", {})
             station_lat = s.get("lat") or location_data.get("Lat") or 0.0
             station_lon = s.get("lon") or location_data.get("Lon") or 0.0
-            if station_lat == 0 and station_lon == 0:
-                return float('inf')
-            return calculate_distance(original_lat, original_lon, station_lat, station_lon)
-        stations_list.sort(key=get_station_distance)
-
-    # Calculate average prices by fuel type and save to history
-    # Use same fuel types as CityAverages: diesel, diesel_plus, b95, b98, gpl
-    avg_prices = {}
-    if stations_list:
-        fuel_prices = {
-            "diesel": [],      # Motorină standard
-            "diesel_plus": [], # Motorină premium
-            "b95": [],         # Benzină 95
-            "b98": [],         # Benzină 98
-            "gpl": []
-        }
-
-        for station in stations_list:
-            for price_data in station.get("prices", []):
-                fuel = price_data.get("fuel", "").lower()
-                price = price_data.get("price", 0)
-
-                if price > 0:
-                    if "benzină 95" in fuel or "benzina 95" in fuel:
-                        fuel_prices["b95"].append(price)
-                    elif "benzină 98" in fuel or "benzina 98" in fuel:
-                        fuel_prices["b98"].append(price)
-                    elif "motorină premium" in fuel or "motorina premium" in fuel:
-                        fuel_prices["diesel_plus"].append(price)
-                    elif "motorin" in fuel:
-                        fuel_prices["diesel"].append(price)
-                    elif "gpl" in fuel:
-                        fuel_prices["gpl"].append(price)
-
-        for fuel, prices in fuel_prices.items():
-            if prices:
-                avg_prices[fuel] = sum(prices) / len(prices)
-
-        # Save to database
-        if avg_prices:
-            save_price_history(city, avg_prices)
+            if station_lat != 0 or station_lon != 0:
+                distance = calculate_distance(original_lat, original_lon, station_lat, station_lon)
+        
+        # Return tuple: (diesel_price, distance)
+        # This will sort by diesel price first (ascending), then by distance (ascending)
+        return (diesel_price, distance)
+    
+    stations_list.sort(key=get_sort_key)
 
     return JSONResponse(status_code=200, content={
         "stations": stations_list,

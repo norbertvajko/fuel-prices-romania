@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import CORS_ORIGINS
-from .routes import search_router, price_history_router, stations_router
+from .routes import search_router, price_history_router
 
 # ----------------------------
 # Logging setup
@@ -45,6 +45,3 @@ app.add_middleware(
 # ----------------------------
 app.include_router(search_router, tags=["search"])
 app.include_router(price_history_router, tags=["price-history"])
-app.include_router(stations_router, tags=["stations"])
-
-

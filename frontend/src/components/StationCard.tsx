@@ -8,7 +8,8 @@ import StationMap from "./StationMap";
 interface StationCardProps {
   station: Station;
   cheapestPrice: number;
-  isOverallCheapest: boolean;
+  isMostCheapestDiesel: boolean;
+  isMostCheapestBenzina: boolean;
   index: number;
 }
 
@@ -76,7 +77,8 @@ const SERVICE_COLORS: Record<string, string> = {
 const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
   station,
   cheapestPrice,
-  isOverallCheapest,
+  isMostCheapestDiesel,
+  isMostCheapestBenzina,
   index,
 }, ref) => {
   const { name, network, networkLogo, prices, lat, lon, updatedate, address, services = [], contactDetails } = station;
@@ -119,9 +121,17 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
         animationDelay: `${80 + index * 70}ms`,
       }}
     >
-      {isOverallCheapest && (
-        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-r-full bg-success" />
+
+      {isMostCheapestDiesel && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(214,80%,50%)] via-[hsl(214,80%,40%)] to-[hsl(214,80%,30%)]" />
       )}
+      {isMostCheapestBenzina && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(142,72%,50%)] via-[hsl(142,72%,40%)] to-[hsl(142,72%,30%)]" />
+      )}
+      {isMostCheapestDiesel && isMostCheapestBenzina && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(214,80%,50%)] via-[hsl(214,80%,40%)] via-[hsl(142,72%,40%)] to-[hsl(142,72%,50%)]" />
+      )}
+
 
       <div className="p-4 sm:p-6 pb-5">
         <div className="flex items-start justify-between gap-3 sm:gap-4">
@@ -149,10 +159,42 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
               </p>
             )}
 
-            {isOverallCheapest && (
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-success pt-0.5">
-                <TrendingDown className="h-3.5 w-3.5" />
-                Cel mai ieftin din zonă
+            {(isMostCheapestDiesel || isMostCheapestBenzina) && (
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold pt-0.5">
+                <TrendingDown
+                  className="h-3.5 w-3.5"
+                  style={{
+                    color:
+                      isMostCheapestDiesel && isMostCheapestBenzina
+                        ? "hsl(180, 76%, 42%)"
+                        : isMostCheapestDiesel
+                          ? "hsl(214, 80%, 40%)"
+                          : "hsl(142, 72%, 37%)",
+                  }}
+                />
+
+                <span
+                  className={
+                    isMostCheapestDiesel && isMostCheapestBenzina
+                      ? "bg-gradient-to-r from-[hsl(214,80%,40%)] to-[hsl(142,72%,37%)] bg-clip-text text-transparent"
+                      : ""
+                  }
+                  style={
+                    !isMostCheapestDiesel || !isMostCheapestBenzina
+                      ? {
+                        color: isMostCheapestDiesel
+                          ? "hsl(214, 80%, 40%)"
+                          : "hsl(142, 72%, 37%)",
+                      }
+                      : {}
+                  }
+                >
+                  {isMostCheapestDiesel && isMostCheapestBenzina
+                    ? "Cel mai mic preț la motorină și benzină din zonă"
+                    : isMostCheapestDiesel
+                      ? "Cel mai mic preț la motorină din zonă"
+                      : "Cel mai mic preț la benzină din zonă"}
+                </span>
               </div>
             )}
           </div>
@@ -256,7 +298,7 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
 
         {/* Contact (expandable) */}
         {hasDetails && contactDetails && (
-          <div className="my-4">
+          <div className="mt-4">
             <button
               onClick={() => setExpanded(!expanded)}
               className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors active:scale-[0.97]"
@@ -274,7 +316,7 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
 
         {/* Inline Map */}
         {showMap && lat && lon && (
-          <div className="mb-3 animate-in slide-in-from-top-2 fade-in duration-300">
+          <div className="mt-3 mb-3 animate-in slide-in-from-top-2 fade-in duration-300">
             <StationMap lat={lat} lon={lon} name={name} network={network} />
           </div>
         )}

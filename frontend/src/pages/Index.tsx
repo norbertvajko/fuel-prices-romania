@@ -3,7 +3,7 @@ import HeroSection from "../components/HeroSection";
 import YearlyChart from "../components/YearlyChart";
 import CityAverages from "../components/CityAverages";
 import StationCard from "../components/StationCard";
-import { ChartSkeleton, StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
+import { StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
 import FuelLoader from "../components/FuelLoader";
 import { API_URL } from "../constants";
 import type { Station } from "../types";
@@ -19,13 +19,11 @@ const Index = () => {
   const [isChartLoaded, setIsChartLoaded] = useState(false);
   const [chartProgress, setChartProgress] = useState(0);
   const cityAveragesRef = useRef<HTMLDivElement>(null);
-  const stationsRef = useRef<HTMLDivElement>(null);
-  const firstStationCardRef = useRef<HTMLDivElement>(null);
 
   // Track last known city for skeleton display
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
 
-  // Fetch data from your own API (not external API)
+  // Fetch data from your own API (scrapes fresh data)
   const doSearch = useCallback(async (city: string) => {
     setIsLoading(true);
     setStations([]);
@@ -33,8 +31,8 @@ const Index = () => {
     setLastCity(city);
 
     try {
-      // Call your own /stations endpoint instead of external API
-      const res = await fetch(`${API_URL}/stations?city=${encodeURIComponent(city)}`);
+      // Call /search endpoint which scrapes fresh data from external API
+      const res = await fetch(`${API_URL}/search?city=${encodeURIComponent(city)}`);
       const data = await res.json();
 
       if (data.error) {
@@ -94,18 +92,12 @@ const Index = () => {
       <HeroSection onSearch={handleSearchFromHero} />
 
       {/* Chart - always show */}
-      {isLoading ? (
-        <section className="max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-          <ChartSkeleton />
-        </section>
-      ) : (
-        <section className="max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-          <YearlyChart
-            onLoadingComplete={() => setIsChartLoaded(true)}
-            onProgress={(progress) => setChartProgress(progress)}
-          />
-        </section>
-      )}
+      <section className="mx-auto px-4 -mt-12 relative z-10 w-full">
+        <YearlyChart
+          onLoadingComplete={() => setIsChartLoaded(true)}
+          onProgress={(progress) => setChartProgress(progress)}
+        />
+      </section>
       {/* Today's prices - Real data from your API */}
       <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
         {isLoading || refreshing ? (
@@ -123,21 +115,63 @@ const Index = () => {
       </section>
 
       {/* Stations section - Real data from your API */}
-      <section ref={stationsRef} className="max-w-6xl mx-auto px-4 mt-8">
+      <section className="max-w-6xl mx-auto px-4 mt-8 w-full">
         {isLoading ? (
           <StationListSkeleton />
         ) : stations.length > 0 ? (
           <div className="space-y-4">
-            {stations.map((station, index) => (
-              <StationCard
-                key={station.name + index}
-                station={station}
-                cheapestPrice={0}
-                isOverallCheapest={false}
-                index={index}
-                ref={index === 0 ? firstStationCardRef : null}
-              />
-            ))}
+            {(() => {
+              // Calculate cheapest price for each station (diesel or benzina)
+              const stationsWithCheapest = stations.map((station, idx) => {
+                const dieselPrices = station.prices.filter(p =>
+                  p.fuel.includes('Motorină') && p.price > 0
+                );
+                const benzinaPrices = station.prices.filter(p =>
+                  p.fuel.includes('Benzină') && p.price > 0
+                );
+
+                const minDiesel = dieselPrices.length > 0 ? Math.min(...dieselPrices.map(p => p.price)) : Infinity;
+                const minBenzina = benzinaPrices.length > 0 ? Math.min(...benzinaPrices.map(p => p.price)) : Infinity;
+                const cheapestPrice = Math.min(minDiesel, minBenzina);
+
+                return {
+                  station,
+                  originalIndex: idx,
+                  cheapestPrice,
+                  minDiesel,
+                  minBenzina
+                };
+              });
+
+              // Find cheapest diesel and benzina stations
+              let cheapestDieselIndex = -1;
+              let cheapestDieselPrice = Infinity;
+              let cheapestBenzinaIndex = -1;
+              let cheapestBenzinaPrice = Infinity;
+
+              stationsWithCheapest.forEach((item, idx) => {
+                if (item.minDiesel < cheapestDieselPrice) {
+                  cheapestDieselPrice = item.minDiesel;
+                  cheapestDieselIndex = idx;
+                }
+                if (item.minBenzina < cheapestBenzinaPrice) {
+                  cheapestBenzinaPrice = item.minBenzina;
+                  cheapestBenzinaIndex = idx;
+                }
+              });
+
+              // Use stations in the order returned by backend (already sorted by diesel price)
+              return stationsWithCheapest.map((item, index) => (
+                <StationCard
+                  key={item.station.name + index}
+                  station={item.station}
+                  cheapestPrice={item.cheapestPrice}
+                  isMostCheapestDiesel={index === cheapestDieselIndex}
+                  isMostCheapestBenzina={index === cheapestBenzinaIndex}
+                  index={index}
+                />
+              ));
+            })()}
           </div>
         ) : hasSearched ? (
           <div className="text-center py-12">
