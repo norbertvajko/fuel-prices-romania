@@ -17,9 +17,6 @@ BASE_URL = "https://monitorulpreturilor.info/pmonsvc/Gas"
 # Product IDs to fetch from the external API
 FUEL_PRODUCT_IDS = [11, 12, 21, 22, 31, 41]
 
-# Database path
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fuel_prices.db")
-
 # CORS allowed origins
 CORS_ORIGINS = [
     "http://localhost:5173",

@@ -1,80 +1,97 @@
 """
 Database functions for price history storage.
 """
-import sqlite3
+
+import psycopg2
+import os
 import logging
 from typing import Optional, List, Dict
-
-from .config import DB_PATH
+from dotenv import load_dotenv
+load_dotenv()
 
 logger = logging.getLogger("fuel_scraper")
 
 
+def get_connection():
+    return psycopg2.connect(
+        host="db.gajimjjpxjdkhmlcqkcq.supabase.co",
+        database="postgres",
+        user="postgres",
+        password=os.getenv("SUPABASE_DB_PASSWORD"),
+        port=5432,
+        sslmode="require"
+    )
+
+
 def init_db() -> None:
     """Initialize the database with price history tables."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
-    
+
     # Create table for price history
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS price_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             city TEXT NOT NULL,
             fuel_type TEXT NOT NULL,
             price REAL NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(city, fuel_type, timestamp)
         )
     """)
-    
+
     # Create table for national average prices
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS national_averages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             fuel_type TEXT NOT NULL,
             price REAL NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(fuel_type, timestamp)
         )
     """)
-    
+
     # Create index for faster queries
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_city_timestamp 
         ON price_history(city, timestamp)
     """)
-    
+
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_national_timestamp 
         ON national_averages(timestamp)
     """)
-    
+
     conn.commit()
     conn.close()
-    logger.info("Database initialized at %s", DB_PATH)
+    logger.info("Database initialized")
 
 
 def save_price_history(city: str, prices: dict) -> None:
     """
     Save price data to history table.
-    Uses INSERT OR IGNORE to keep the first scrape of the day (skips duplicates).
-    
+    Uses INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day (skips duplicates).
+
     Args:
         city: The city name
         prices: Dict with fuel types as keys and prices as values
                e.g., { "benzina": 7.50, "motorina": 7.80, "gpl": 4.50 }
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
-    
+
     for fuel_type, price in prices.items():
-        if price and price != float('inf'):
-            # Use INSERT OR IGNORE to keep the first scrape of the day
-            cursor.execute("""
-                INSERT OR IGNORE INTO price_history (city, fuel_type, price, timestamp)
-                VALUES (?, ?, ?, datetime('now'))
-            """, (city, fuel_type, price))
-    
+        if price and price != float("inf"):
+            # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
+            cursor.execute(
+                """
+                INSERT INTO price_history (city, fuel_type, price, timestamp)
+                VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (city, fuel_type, timestamp) DO NOTHING
+            """,
+                (city, fuel_type, price),
+            )
+
     conn.commit()
     conn.close()
     logger.info("Saved price history for city: %s", city)
@@ -83,48 +100,47 @@ def save_price_history(city: str, prices: dict) -> None:
 def get_price_history(city: str, days: int = 30) -> list:
     """
     Get price history for a city for the last N days.
-    
+
     Args:
         city: The city name
         days: Number of days to look back (default 30)
-    
+
     Returns:
         List of {date, fuel_type, price} objects
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
-    
+
     # Get daily averages for each fuel type
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT 
             DATE(timestamp) as date,
             fuel_type,
             AVG(price) as avg_price
         FROM price_history
-        WHERE city = ?
-        AND timestamp >= datetime('now', '-' || ? || ' days')
+        WHERE city = %s
+        AND timestamp >= CURRENT_TIMESTAMP - INTERVAL '%s days'
         GROUP BY DATE(timestamp), fuel_type
         ORDER BY date ASC
-    """, (city, days))
-    
+    """,
+        (city, days),
+    )
+
     results = cursor.fetchall()
     conn.close()
-    
+
     # Convert to list of dicts
     history = []
     for row in results:
-        history.append({
-            "date": row[0],
-            "fuel_type": row[1],
-            "price": round(row[2], 2)
-        })
-    
+        history.append({"date": row[0], "fuel_type": row[1], "price": round(row[2], 2)})
+
     return history
 
 
 def clear_price_history() -> None:
     """Clear all price history data from the database."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM price_history")
     conn.commit()
@@ -135,23 +151,27 @@ def clear_price_history() -> None:
 def save_national_average(prices: dict) -> None:
     """
     Save national average prices to database.
-    Uses INSERT OR IGNORE to keep the first scrape of the day.
-    
+    Uses INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day.
+
     Args:
         prices: Dict with fuel types as keys and average prices as values
                e.g., { "diesel": 7.50, "b95": 7.80, "b98": 8.20, "gpl": 4.50 }
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
-    
+
     for fuel_type, price in prices.items():
-        if price and price != float('inf'):
-            # Use INSERT OR IGNORE to keep the first scrape of the day
-            cursor.execute("""
-                INSERT OR IGNORE INTO national_averages (fuel_type, price, timestamp)
-                VALUES (?, ?, datetime('now'))
-            """, (fuel_type, price))
-    
+        if price and price != float("inf"):
+            # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
+            cursor.execute(
+                """
+                INSERT INTO national_averages (fuel_type, price, timestamp)
+                VALUES (%s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (fuel_type, timestamp) DO NOTHING
+            """,
+                (fuel_type, price),
+            )
+
     conn.commit()
     conn.close()
     logger.info("Saved national average prices: %s", prices)
@@ -161,18 +181,19 @@ def get_national_average_history(days: int = 30) -> list:
     """
     Get national average price history for the last N days.
     Returns the last reading from each day for each fuel type.
-    
+
     Args:
         days: Number of days to look back (default 30)
-    
+
     Returns:
         List of {date, fuel_type, price} objects
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cursor = conn.cursor()
-    
+
     # Get the last reading from each day for each fuel type
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT 
             DATE(n.timestamp) as date,
             n.fuel_type,
@@ -184,24 +205,22 @@ def get_national_average_history(days: int = 30) -> list:
                 DATE(timestamp) as date,
                 MAX(timestamp) as max_timestamp
             FROM national_averages
-            WHERE timestamp >= datetime('now', '-' || ? || ' days')
+            WHERE timestamp >= CURRENT_TIMESTAMP - INTERVAL '%s days'
             GROUP BY fuel_type, DATE(timestamp)
         ) latest ON n.fuel_type = latest.fuel_type 
             AND n.timestamp = latest.max_timestamp
         ORDER BY date ASC
-    """, (days,))
-    
+    """,
+        (days,),
+    )
+
     results = cursor.fetchall()
     conn.close()
-    
+
     history = []
     for row in results:
-        history.append({
-            "date": row[0],
-            "fuel_type": row[1],
-            "price": round(row[2], 2)
-        })
-    
+        history.append({"date": row[0], "fuel_type": row[1], "price": round(row[2], 2)})
+
     return history
 
 
