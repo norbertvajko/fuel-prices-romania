@@ -8,6 +8,7 @@ on:
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
+    environment: DATABASE_URL
 
     steps:
       # 1️⃣ Checkout your repo
