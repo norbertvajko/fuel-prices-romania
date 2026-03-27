@@ -87,7 +87,7 @@ const YearlyChart = ({
         setData(transformData(result.history || []));
         onProgress?.(100);
       } catch (err) {
-        console.error("Failed to fetch:", err);
+        // Handle error silently
         onProgress?.(100);
       } finally {
         clearInterval(progressInterval);

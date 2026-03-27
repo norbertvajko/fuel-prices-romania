@@ -60,12 +60,12 @@ async def geocode_address(address: str) -> Optional[Tuple[float, float]]:
                     result = data[0]
                     lat = float(result.get("lat", 0))
                     lon = float(result.get("lon", 0))
-                    logger.info(f"Geocoded '{query}' to: {lat}, {lon}")
+
                     if lat and lon:
                         return lat, lon
             except Exception as e:
-                logger.warning(f"Geocoding failed for '{query}': {e}")
-    
+                pass
+
     return None
 
 

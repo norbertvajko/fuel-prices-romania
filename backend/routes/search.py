@@ -52,7 +52,6 @@ async def search_city(
             else:
                 return JSONResponse(status_code=200, content={"stations": [], "error": "Address not found"})
         except Exception as e:
-            logger.warning("Geocoding failed: %s", e)
             return JSONResponse(status_code=200, content={"stations": [], "error": "Geocoding failed"})
 
     # If lat/lon provided but no city, reverse geocode to get city
@@ -65,7 +64,6 @@ async def search_city(
                 if not city:
                     return JSONResponse(status_code=200, content={"stations": [], "error": "Could not determine city from location"})
             except Exception as e:
-                logger.warning("Reverse geocoding failed: %s", e)
                 return JSONResponse(status_code=200, content={"stations": [], "error": "Reverse geocoding failed"})
         else:
             # City provided - if we also have address coordinates, verify the city matches
@@ -73,13 +71,13 @@ async def search_city(
             if address_coords:
                 try:
                     geocoded_city = await reverse_geocode(address_coords[0], address_coords[1])
-                    logger.info(f"Address geocoded to city: {geocoded_city}, requested city: {city}")
+
                     # Use the geocoded city for fetching (more accurate for address search)
                     if geocoded_city:
                         city = geocoded_city
                 except Exception as e:
-                    logger.warning(f"Failed to verify city from address: {e}")
-    
+                    pass
+
     if not city:
         return JSONResponse(status_code=400, content={"error": "City or coordinates required"})
     
@@ -87,14 +85,14 @@ async def search_city(
     try:
         uat_id = await get_uat_id(city)
     except Exception as e:
-        logger.warning("Failed to get UAT ID: %s", e)
+
         return JSONResponse(status_code=200, content={"stations": []})
 
     # Step 2: Get price data
     try:
         data = await get_prices_by_uat(uat_id, product_ids)
     except Exception as e:
-        logger.warning("Failed to fetch prices: %s", e)
+
         return JSONResponse(status_code=200, content={"stations": []})
 
     stations = data.get("Stations", [])

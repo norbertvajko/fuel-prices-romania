@@ -10,7 +10,11 @@ logger = logging.getLogger("fuel_scraper")
 
 
 def get_connection():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+    """Get a database connection using the DATABASE_URL environment variable."""
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        raise ValueError("DATABASE_URL environment variable is not set. Please set it in your .env file.")
+    return psycopg2.connect(database_url)
 
 
 def init_db() -> None:
@@ -48,9 +52,13 @@ def init_db() -> None:
             city TEXT NOT NULL,
             name TEXT NOT NULL,
             network TEXT,
+            network_logo TEXT,
             address TEXT,
             lat REAL,
             lon REAL,
+            updatedate TEXT,
+            services JSONB DEFAULT '[]'::jsonb,
+            contact_details TEXT,
             scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(city, name, address)
         )
@@ -230,47 +238,74 @@ def get_national_average_history(days: int = 30) -> list:
     Returns:
         List of {date, fuel_type, price} objects
     """
-    conn = get_connection()
-    cursor = conn.cursor()
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    # Get the last reading from each day for each fuel type
-    cursor.execute(
+        # First check if the table exists
+        cursor.execute(
+            """
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'national_averages'
+            )
         """
-        SELECT 
-            DATE(n.timestamp) as date,
-            n.fuel_type,
-            n.price
-        FROM national_averages n
-        INNER JOIN (
+        )
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            logger.error("national_averages table does not exist. Run setup_database.py to initialize the database.")
+            if conn:
+                conn.close()
+            return []
+
+        # Get the last reading from each day for each fuel type
+        cursor.execute(
+            """
             SELECT 
-                fuel_type,
-                DATE(timestamp) as date,
-                MAX(timestamp) as max_timestamp
-            FROM national_averages
-            WHERE timestamp >= CURRENT_TIMESTAMP - INTERVAL '%s days'
-            GROUP BY fuel_type, DATE(timestamp)
-        ) latest ON n.fuel_type = latest.fuel_type 
-            AND n.timestamp = latest.max_timestamp
-        ORDER BY date ASC
-    """,
-        (days,),
-    )
+                DATE(n.timestamp) as date,
+                n.fuel_type,
+                n.price
+            FROM national_averages n
+            INNER JOIN (
+                SELECT 
+                    fuel_type,
+                    DATE(timestamp) as date,
+                    MAX(timestamp) as max_timestamp
+                FROM national_averages
+                WHERE timestamp >= CURRENT_TIMESTAMP - INTERVAL '%s days'
+                GROUP BY fuel_type, DATE(timestamp)
+            ) latest ON n.fuel_type = latest.fuel_type 
+                AND n.timestamp = latest.max_timestamp
+            ORDER BY date ASC
+        """,
+            (days,),
+        )
 
-    results = cursor.fetchall()
-    conn.close()
+        results = cursor.fetchall()
+        conn.close()
 
-    history = []
-    for row in results:
-        history.append({"date": row[0], "fuel_type": row[1], "price": round(row[2], 2)})
+        history = []
+        for row in results:
+            history.append({"date": row[0], "fuel_type": row[1], "price": round(row[2], 2)})
 
-    return history
+        return history
+    except Exception as e:
+        # Handle error silently
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+        raise
 
 
 # ============================================================================
 # STATION FUNCTIONS
 # ============================================================================
 
-def save_station(city: str, name: str, network: str, address: str, lat: float, lon: float) -> int:
+def save_station(city: str, name: str, network: str, network_logo: str, address: str, lat: float, lon: float, updatedate: str, services: list, contact_details: str) -> int:
     """
     Save a station to the database.
     Uses INSERT ON CONFLICT DO NOTHING to skip duplicates.
@@ -279,29 +314,41 @@ def save_station(city: str, name: str, network: str, address: str, lat: float, l
         city: The city name
         name: Station name
         network: Fuel network (e.g., "Petrom", "OMV")
+        network_logo: Network logo URL
         address: Station address
         lat: Latitude
         lon: Longitude
+        updatedate: Last update date
+        services: List of services
+        contact_details: Contact information
 
     Returns:
         Station ID
     """
+    import json
     conn = get_connection()
     cursor = conn.cursor()
+
+    # Convert services list to JSON string
+    services_json = json.dumps(services) if services else '[]'
 
     # Insert or get existing station
     cursor.execute(
         """
-        INSERT INTO stations (city, name, network, address, lat, lon, scraped_at)
-        VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+        INSERT INTO stations (city, name, network, network_logo, address, lat, lon, updatedate, services, contact_details, scraped_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, CURRENT_TIMESTAMP)
         ON CONFLICT (city, name, address) DO UPDATE SET
             network = EXCLUDED.network,
+            network_logo = EXCLUDED.network_logo,
             lat = EXCLUDED.lat,
             lon = EXCLUDED.lon,
+            updatedate = EXCLUDED.updatedate,
+            services = EXCLUDED.services,
+            contact_details = EXCLUDED.contact_details,
             scraped_at = CURRENT_TIMESTAMP
         RETURNING id
     """,
-        (city, name, network, address, lat, lon),
+        (city, name, network, network_logo, address, lat, lon, updatedate, services_json, contact_details),
     )
 
     station_id = cursor.fetchone()[0]
@@ -348,6 +395,7 @@ def get_stations_by_city(city: str, limit: int = 100) -> list:
     Returns:
         List of station dicts with prices
     """
+    import json
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -358,9 +406,13 @@ def get_stations_by_city(city: str, limit: int = 100) -> list:
             s.id,
             s.name,
             s.network,
+            s.network_logo,
             s.address,
             s.lat,
             s.lon,
+            s.updatedate,
+            s.services,
+            s.contact_details,
             sp.fuel_type,
             sp.price
         FROM stations s
@@ -385,20 +437,31 @@ def get_stations_by_city(city: str, limit: int = 100) -> list:
     for row in results:
         station_id = row[0]
         if station_id not in stations:
+            # Parse services JSON
+            services_json = row[8] if row[8] else '[]'
+            try:
+                services = json.loads(services_json) if isinstance(services_json, str) else services_json
+            except:
+                services = []
+            
             stations[station_id] = {
                 "id": station_id,
                 "name": row[1],
                 "network": row[2],
-                "address": row[3],
-                "lat": row[4],
-                "lon": row[5],
+                "networkLogo": row[3],
+                "address": row[4],
+                "lat": row[5],
+                "lon": row[6],
+                "updatedate": row[7],
+                "services": services,
+                "contactDetails": row[9],
                 "prices": [],
             }
 
-        if row[6] and row[7]:  # fuel_type and price
+        if row[10] and row[11]:  # fuel_type and price
             stations[station_id]["prices"].append({
-                "fuel": row[6],
-                "price": row[7],
+                "fuel": row[10],
+                "price": row[11],
             })
 
     return list(stations.values())

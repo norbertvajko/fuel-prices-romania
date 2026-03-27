@@ -27,7 +27,7 @@ async def get_price_history_endpoint(
             "history": history
         }
     except Exception as e:
-        logger.error("Error fetching price history: %s", e)
+
         return JSONResponse(status_code=500, content={"error": "Failed to fetch price history"})
 
 
@@ -38,7 +38,7 @@ async def clear_price_history_endpoint():
         clear_price_history()
         return {"message": "Price history cleared successfully"}
     except Exception as e:
-        logger.error("Error clearing price history: %s", e)
+
         return JSONResponse(status_code=500, content={"error": "Failed to clear price history"})
 
 
@@ -50,7 +50,7 @@ async def update_all_cities_endpoint():
     It also calculates and saves national average prices.
     """
     try:
-        logger.info("Starting daily price history update for all cities")
+
         result = await fetch_and_save_national_average()
         
         return {
@@ -60,7 +60,7 @@ async def update_all_cities_endpoint():
             "national_average": result['national_average']
         }
     except Exception as e:
-        logger.error("Error updating all cities: %s", e)
+
         return JSONResponse(status_code=500, content={"error": f"Failed to update prices: {str(e)}"})
 
 
@@ -77,9 +77,18 @@ async def get_national_average_endpoint(
             "days": days,
             "history": history
         }
+    except ValueError as e:
+
+        return JSONResponse(status_code=500, content={"error": str(e)})
     except Exception as e:
-        logger.error("Error fetching national average history: %s", e)
-        return JSONResponse(status_code=500, content={"error": "Failed to fetch national average history"})
+
+        error_msg = str(e)
+        if "national_averages" in error_msg.lower() and "does not exist" in error_msg.lower():
+            return JSONResponse(status_code=500, content={"error": "Database not initialized. Please run setup_database.py first."})
+        elif "connection" in error_msg.lower() or "connect" in error_msg.lower():
+            return JSONResponse(status_code=500, content={"error": "Database connection failed. Check DATABASE_URL environment variable."})
+        else:
+            return JSONResponse(status_code=500, content={"error": f"Failed to fetch national average history: {error_msg}"})
 
 
 @router.post("/price-history/update-national")
@@ -89,7 +98,7 @@ async def update_national_average_endpoint():
     This endpoint is intended to be called by a cron job daily.
     """
     try:
-        logger.info("Starting daily national average price calculation")
+
         result = await fetch_and_save_national_average()
         
         return {
@@ -99,5 +108,5 @@ async def update_national_average_endpoint():
             "national_average": result['national_average']
         }
     except Exception as e:
-        logger.error("Error updating national average: %s", e)
+
         return JSONResponse(status_code=500, content={"error": f"Failed to update national average: {str(e)}"})

@@ -23,7 +23,9 @@ async def get_uat_id(city: str) -> str:
     Raises:
         ValueError: If no UAT is found for the city
     """
-    url = f"{BASE_URL}/GetUATByName?uatname={city}"
+    # Capitalize the first letter of the city name for case-insensitive search
+    city_capitalized = city.strip().capitalize()
+    url = f"{BASE_URL}/GetUATByName?uatname={city_capitalized}"
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(url, headers=HEADERS)
         resp.raise_for_status()
@@ -77,8 +79,8 @@ async def get_prices_by_uat(uat_id: str, product_ids: Optional[list] = None) -> 
             data = await get_prices_by_product(uat_id, product_id)
             all_data.append(data)
         except Exception as e:
-            logger.warning("Failed to fetch prices for product ID %d: %s", product_id, e)
-    
+            pass
+
     # Combine all stations from all responses (merge by station ID)
     station_map = {}
     combined_products = []

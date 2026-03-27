@@ -38,7 +38,6 @@ const Index = () => {
       const data = await res.json();
 
       if (data.error) {
-        console.error("Search error:", data.error);
         return;
       }
 
@@ -57,7 +56,7 @@ const Index = () => {
       setCurrentCity(city);
       setLastUpdated(new Date().toISOString());
     } catch (error) {
-      console.error("API Error:", error);
+      // Handle error silently
     } finally {
       setIsLoading(false);
     }

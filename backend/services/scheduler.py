@@ -29,14 +29,14 @@ async def fetch_and_save_city_prices(city: str) -> dict:
         # Get UAT ID
         uat_id = await get_uat_id(city)
     except Exception as e:
-        logger.warning(f"Failed to get UAT ID for {city}: {e}")
+
         return {"city": city, "status": "failed", "error": "Failed to get UAT ID"}
     
     try:
         # Get prices
         data = await get_prices_by_uat(uat_id, FUEL_PRODUCT_IDS)
     except Exception as e:
-        logger.warning(f"Failed to fetch prices for {city}: {e}")
+
         return {"city": city, "status": "failed", "error": "Failed to fetch prices"}
     
     stations = data.get("Stations", [])
@@ -74,8 +74,10 @@ async def fetch_and_save_city_prices(city: str) -> dict:
         station_name = station.get("name") or station.get("brand") or " Stație necunoscută"
         network_data = station.get("network")
         network_val = ""
+        network_logo = ""
         if isinstance(network_data, dict):
             network_val = network_data.get("name", "")
+            network_logo = (network_data.get("logo") or {}).get("logouri", "")
         elif isinstance(network_data, str):
             network_val = network_data
         
@@ -88,48 +90,55 @@ async def fetch_and_save_city_prices(city: str) -> dict:
         # Get address from addr.addrstring
         address_val = addr_data.get("addrstring", "")
         
+        # Get updatedate
+        updatedate_val = station.get("updatedate", "")
+        
+        # Get services
+        services_val = station.get("services", [])
+        
+        # Get contact details
+        contact_details_val = addr_data.get("contactdetails", "")
+        
         # Save station to database
         try:
             station_id = save_station(
                 city=city,
                 name=station_name,
                 network=network_val,
+                network_logo=network_logo,
                 address=address_val,
                 lat=lat_val,
                 lon=lon_val,
+                updatedate=updatedate_val,
+                services=services_val,
+                contact_details=contact_details_val,
             )
             stations_saved += 1
             
             # Save station prices
             for price_data in station.get("prices", []):
-                fuel = price_data.get("fuel", "").lower()
+                fuel = price_data.get("fuel", "")
                 price = price_data.get("price", 0)
                 
                 if price > 0:
-                    # Map fuel name to standard type
-                    fuel_type = None
-                    if "benzină 95" in fuel or "benzina 95" in fuel:
-                        fuel_type = "b95"
-                        fuel_prices["b95"].append(price)
-                    elif "benzină 98" in fuel or "benzina 98" in fuel:
-                        fuel_type = "b98"
-                        fuel_prices["b98"].append(price)
-                    elif "motorină premium" in fuel or "motorina premium" in fuel:
-                        fuel_type = "diesel_plus"
-                        fuel_prices["diesel_plus"].append(price)
-                    elif "motorin" in fuel:
-                        fuel_type = "diesel"
-                        fuel_prices["diesel"].append(price)
-                    elif "gpl" in fuel:
-                        fuel_type = "gpl"
-                        fuel_prices["gpl"].append(price)
+                    # Save all fuel types to database
+                    save_station_price(station_id, fuel, price)
                     
-                    # Save to database if we have a valid fuel type
-                    if fuel_type:
-                        save_station_price(station_id, fuel_type, price)
+                    # Also add to fuel_prices for averages calculation
+                    fuel_lower = fuel.lower()
+                    if "benzină 95" in fuel_lower or "benzina 95" in fuel_lower:
+                        fuel_prices["b95"].append(price)
+                    elif "benzină 98" in fuel_lower or "benzina 98" in fuel_lower:
+                        fuel_prices["b98"].append(price)
+                    elif "motorină premium" in fuel_lower or "motorina premium" in fuel_lower:
+                        fuel_prices["diesel_plus"].append(price)
+                    elif "motorin" in fuel_lower:
+                        fuel_prices["diesel"].append(price)
+                    elif "gpl" in fuel_lower:
+                        fuel_prices["gpl"].append(price)
                         
         except Exception as e:
-            logger.warning(f"Failed to save station {station_name}: {e}")
+
             continue
     
     # Calculate averages
@@ -141,7 +150,7 @@ async def fetch_and_save_city_prices(city: str) -> dict:
     # Save to database
     if avg_prices:
         save_price_history(city, avg_prices)
-        logger.info(f"Saved price history for {city}: {avg_prices}")
+
         return {
             "city": city,
             "status": "success",
@@ -176,7 +185,7 @@ async def fetch_and_save_national_average() -> dict:
     Returns:
         Dict with national average prices and status
     """
-    logger.info("Starting daily national average price calculation")
+
     
     # Fetch prices for all major cities
     city_results = []
@@ -208,7 +217,7 @@ async def fetch_and_save_national_average() -> dict:
     # Save national average to database
     if national_avg:
         save_national_average(national_avg)
-        logger.info(f"Saved national average prices: {national_avg}")
+
     
     success_count = sum(1 for r in city_results if r.get("status") == "success")
     total_stations = sum(r.get("stations_saved", 0) for r in city_results if r.get("status") == "success")

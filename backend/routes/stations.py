@@ -35,7 +35,7 @@ async def get_stations_endpoint(
             "count": len(stations)
         }
     except Exception as e:
-        logger.error("Error fetching stations for city %s: %s", city, e)
+
         return JSONResponse(
             status_code=500,
             content={"error": f"Failed to fetch stations: {str(e)}"}
@@ -59,7 +59,7 @@ async def get_station_prices_endpoint(
             "prices": prices
         }
     except Exception as e:
-        logger.error("Error fetching station prices for city %s: %s", city, e)
+
         return JSONResponse(
             status_code=500,
             content={"error": f"Failed to fetch station prices: {str(e)}"}
@@ -78,7 +78,7 @@ async def get_cities_endpoint():
             "count": len(cities)
         }
     except Exception as e:
-        logger.error("Error fetching cities: %s", e)
+
         return JSONResponse(
             status_code=500,
             content={"error": f"Failed to fetch cities: {str(e)}"}
