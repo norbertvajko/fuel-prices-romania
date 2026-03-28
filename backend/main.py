@@ -45,3 +45,10 @@ app.add_middleware(
 # ----------------------------
 app.include_router(search_router, tags=["search"])
 app.include_router(price_history_router, tags=["price-history"])
+
+# ----------------------------
+# Health endpoint
+# ----------------------------
+@app.get("/health")
+def health():
+    return {"ok": True}
