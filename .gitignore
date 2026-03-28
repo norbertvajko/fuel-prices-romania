@@ -8,3 +8,6 @@ backend/database.py
 backend/migrations/migrate.py
 backend/routes/__init__.py 
 .vscode/
+scrape_fuelo.py
+import_historical_data.py
+romania_prices_2016_8_1_2026_03_23.json

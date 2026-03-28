@@ -195,7 +195,7 @@ async def search_city(
             return all(any(item in station_items for item in group) for group in filter_lower)
         stations_list = [s for s in stations_list if station_has_required_fuels(s)]
     
-    # Sort by diesel price first (lowest first), then by distance
+    # Sort by distance first (nearest), then by diesel price (lowest first)
     def get_sort_key(s):
         # Get diesel price (motorina) - handle both Romanian and English names
         diesel_price = float('inf')
@@ -218,9 +218,9 @@ async def search_city(
             if station_lat != 0 or station_lon != 0:
                 distance = calculate_distance(original_lat, original_lon, station_lat, station_lon)
         
-        # Return tuple: (diesel_price, distance)
-        # This will sort by diesel price first (ascending), then by distance (ascending)
-        return (diesel_price, distance)
+        # Return tuple: (distance, diesel_price)
+        # This will sort by distance first (ascending), then by diesel price (ascending)
+        return (distance, diesel_price)
     
     stations_list.sort(key=get_sort_key)
 

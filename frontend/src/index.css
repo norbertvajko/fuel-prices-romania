@@ -24,6 +24,11 @@
   --color-hero-foreground: hsl(0 0% 100%);
   --color-hero-glow: hsl(210 100% 65%);
 
+  /* --color-hero-bg: hsl(222.2 47.4% 11.2%);
+  --color-hero-bg-dark: hsl(222.2 47.4% 8%);
+  --color-hero-foreground: hsl(210 40% 98%);
+  --color-hero-glow: hsl(217.2 91.2% 59.8%); */
+
   --color-muted: hsl(210 40% 96%);
   --color-muted-foreground: hsl(215 16% 47%);
 

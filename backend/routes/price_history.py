@@ -16,11 +16,20 @@ router = APIRouter()
 @router.get("/price-history")
 async def get_price_history_endpoint(
     city: str = Query(..., description="Name of the city"),
-    days: int = Query(30, description="Number of days to look back")
+    days: str = Query("30", description="Number of days to look back, or 'all' for all data")
 ):
     """Get price history for a city for the last N days."""
     try:
-        history = get_price_history(city, days)
+        # Handle 'all' parameter or convert to integer
+        if days.lower() == "all":
+            days_int = 999999  # Large number to get all data
+        else:
+            try:
+                days_int = int(days)
+            except ValueError:
+                return JSONResponse(status_code=400, content={"error": "days parameter must be an integer or 'all'"})
+        
+        history = get_price_history(city, days_int)
         return {
             "city": city,
             "days": days,
@@ -44,13 +53,22 @@ async def clear_price_history_endpoint():
 
 @router.get("/price-history/national")
 async def get_national_average_endpoint(
-    days: int = Query(30, description="Number of days to look back")
+    days: str = Query("30", description="Number of days to look back, or 'all' for all data")
 ):
     """
     Get national average price trends for charting.
     """
     try:
-        history = get_national_average_history(days)
+        # Handle 'all' parameter or convert to integer
+        if days.lower() == "all":
+            days_int = 999999  # Large number to get all data
+        else:
+            try:
+                days_int = int(days)
+            except ValueError:
+                return JSONResponse(status_code=400, content={"error": "days parameter must be an integer or 'all'"})
+        
+        history = get_national_average_history(days_int)
         return {
             "days": days,
             "history": history

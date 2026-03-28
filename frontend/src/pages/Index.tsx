@@ -24,15 +24,21 @@ const Index = () => {
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
 
   // Fetch data from your own API (scrapes fresh data)
-  const doSearch = useCallback(async (city: string) => {
+  const doSearch = useCallback(async (city: string, lat?: number, lon?: number) => {
     setIsLoading(true);
     setStations([]);
     setHasSearched(true);
     setLastCity(city);
 
     try {
+      // Build URL with optional coordinates
+      let url = `${API_URL}/search?city=${encodeURIComponent(city)}`;
+      if (lat !== undefined && lon !== undefined) {
+        url += `&lat=${lat}&lon=${lon}`;
+      }
+      
       // Call /search endpoint which scrapes fresh data from external API
-      const res = await fetch(`${API_URL}/search?city=${encodeURIComponent(city)}`);
+      const res = await fetch(url);
       const data = await res.json();
 
       if (data.error) {
@@ -64,8 +70,8 @@ const Index = () => {
   }, []);
 
   // Handle city search from HeroSection
-  const handleSearchFromHero = (city: string) => {
-    doSearch(city);
+  const handleSearchFromHero = (city: string, lat?: number, lon?: number) => {
+    doSearch(city, lat, lon);
 
     // Scroll to the CityAverages section
     setTimeout(() => {

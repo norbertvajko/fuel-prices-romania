@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Fuel, Search } from "lucide-react";
+import { Fuel, Search, LocateFixed, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
-
 interface HeroSectionProps {
-  onSearch?: (city: string) => void;
+  onSearch?: (city: string, lat?: number, lon?: number) => void;
 }
 
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
   const [query, setQuery] = useState("");
+  const [locating, setLocating] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,11 +18,44 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
     }
   };
 
+  const handleLocateMe = async () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ro`
+          );
+          const data = await res.json();
+          const city =
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.village ||
+            data.address?.municipality ||
+            "";
+          if (city) {
+            onSearch?.(city, latitude, longitude);
+          }
+        } catch {
+          // silently fail
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
-    <div className="relative overflow-hidden bg-linear-to-br from-hero-bg via-hero-bg to-hero-bg-dark text-hero-foreground px-6 pt-10 pb-44 lg:pt-14 lg:pb-32">      {/* Decorative background elements */}
+    <div className="relative overflow-hidden bg-gradient-to-br from-hero-bg via-hero-bg to-hero-bg-dark text-hero-foreground px-6 pt-10 pb-44 lg:pt-14 lg:pb-32">
+      {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[hsl(var(--hero-glow))] opacity-10 blur-3xl" />
-        <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-full bg-[hsl(var(--hero-glow))] opacity-[0.07] blur-3xl" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-hero-glow opacity-10 blur-3xl" />
+        <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-full bg-hero-glow opacity-[0.07] blur-3xl" />
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
@@ -65,11 +98,12 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
               Compară stațiile și găsește cel mai bun preț din zona ta.
             </motion.p>
 
+            {/* Search bar */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex items-center bg-hero-foreground/10 backdrop-blur-md rounded-2xl p-1.5 max-w-md border-hero-foreground/15 shadow-lg shadow-black/10"
+              className="flex items-center bg-hero-foreground/10 backdrop-blur-md rounded-2xl p-1.5 max-w-md border border-hero-foreground/15 shadow-lg shadow-black/10"
             >
               <Search className="w-4 h-4 ml-3 opacity-50" />
               <input
@@ -77,16 +111,33 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 placeholder="Caută un oraș (ex: Arad, București)"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
                 className="flex-1 bg-transparent outline-none px-3 py-2.5 text-sm placeholder:text-hero-foreground/40"
               />
-              <button 
+              <button
                 onClick={handleSubmit}
                 className="bg-hero-foreground text-hero-bg font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-hero-foreground/90 transition-all duration-200 shadow-md cursor-pointer"
               >
                 Caută
               </button>
             </motion.div>
+
+            {/* Location button */}
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.45 }}
+              onClick={handleLocateMe}
+              disabled={locating}
+              className="mt-3 flex items-center gap-2 text-xs font-medium text-hero-foreground/70 hover:text-hero-foreground transition-colors cursor-pointer group disabled:opacity-50"
+            >
+              {locating ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <LocateFixed className="w-3.5 h-3.5 group-hover:text-hero-glow transition-colors" />
+              )}
+              {locating ? "Se detectează locația..." : "Folosește locația mea curentă"}
+            </motion.button>
           </div>
 
           {/* Right: Animated fuel illustration */}
@@ -97,94 +148,36 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
             className="hidden lg:flex items-center justify-center"
           >
             <div className="relative w-64 h-64">
-              {/* Pump body */}
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute inset-0 flex items-center justify-center"
               >
                 <svg viewBox="0 0 200 200" className="w-full h-full" fill="none">
-                  {/* Glow ring */}
-                  <motion.circle
-                    cx="100" cy="100" r="85"
-                    stroke="currentColor"
-                    strokeWidth="1"
-                    opacity="0.1"
-                    animate={{ r: [85, 90, 85] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                  <motion.circle
-                    cx="100" cy="100" r="70"
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                    opacity="0.08"
-                    animate={{ r: [70, 75, 70] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  />
-
-                  {/* Fuel pump icon */}
+                  <motion.circle cx="100" cy="100" r="85" stroke="currentColor" strokeWidth="1" opacity="0.1" animate={{ r: [85, 90, 85] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
+                  <motion.circle cx="100" cy="100" r="70" stroke="currentColor" strokeWidth="0.5" opacity="0.08" animate={{ r: [70, 75, 70] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
                   <g transform="translate(60, 45)" opacity="0.9">
-                    {/* Pump body */}
                     <rect x="10" y="30" width="50" height="70" rx="6" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3" />
-                    {/* Screen */}
                     <rect x="18" y="40" width="34" height="22" rx="3" fill="currentColor" fillOpacity="0.1" stroke="currentColor" strokeWidth="1" strokeOpacity="0.25" />
-                    {/* Price display */}
                     <text x="35" y="55" textAnchor="middle" fill="currentColor" fontSize="9" fontWeight="bold" opacity="0.7">9.85</text>
-                    {/* Nozzle */}
                     <rect x="60" y="35" width="15" height="4" rx="2" fill="currentColor" fillOpacity="0.2" />
                     <path d="M75 37 L85 25 L85 55 L78 55 L78 41 L75 41" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.25" fill="none" />
-                    {/* Hose */}
-                    <motion.path
-                      d="M85 55 Q 90 70, 80 80 Q 70 90, 75 100"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeOpacity="0.2"
-                      fill="none"
-                      strokeLinecap="round"
-                      animate={{ d: ["M85 55 Q 90 70, 80 80 Q 70 90, 75 100", "M85 55 Q 92 68, 82 78 Q 72 88, 77 100", "M85 55 Q 90 70, 80 80 Q 70 90, 75 100"] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    {/* Nozzle tip */}
-                    <motion.g
-                      animate={{ y: [0, 2, 0] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    >
+                    <motion.path d="M85 55 Q 90 70, 80 80 Q 70 90, 75 100" stroke="currentColor" strokeWidth="2" strokeOpacity="0.2" fill="none" strokeLinecap="round" animate={{ d: ["M85 55 Q 90 70, 80 80 Q 70 90, 75 100", "M85 55 Q 92 68, 82 78 Q 72 88, 77 100", "M85 55 Q 90 70, 80 80 Q 70 90, 75 100"] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+                    <motion.g animate={{ y: [0, 2, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
                       <rect x="71" y="98" width="10" height="6" rx="2" fill="currentColor" fillOpacity="0.25" />
                     </motion.g>
-                    {/* Drip animation */}
-                    <motion.circle
-                      cx="76" cy="108"
-                      r="2"
-                      fill="currentColor"
-                      fillOpacity="0.3"
-                      animate={{ cy: [108, 118, 108], opacity: [0.3, 0, 0.3], r: [2, 1, 2] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    {/* Base */}
+                    <motion.circle cx="76" cy="108" r="2" fill="currentColor" fillOpacity="0.3" animate={{ cy: [108, 118, 108], opacity: [0.3, 0, 0.3], r: [2, 1, 2] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} />
                     <rect x="5" y="100" width="60" height="8" rx="4" fill="currentColor" fillOpacity="0.12" />
                   </g>
-
-                  {/* Floating price bubbles */}
-                  <motion.g
-                    animate={{ y: [0, -8, 0], opacity: [0.4, 0.7, 0.4] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  >
+                  <motion.g animate={{ y: [0, -8, 0], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
                     <circle cx="40" cy="60" r="16" fill="currentColor" fillOpacity="0.08" />
                     <text x="40" y="63" textAnchor="middle" fill="currentColor" fontSize="7" fontWeight="600" opacity="0.5">GPL</text>
                   </motion.g>
-
-                  <motion.g
-                    animate={{ y: [0, -5, 0], opacity: [0.3, 0.6, 0.3] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  >
+                  <motion.g animate={{ y: [0, -5, 0], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}>
                     <circle cx="160" cy="75" r="14" fill="currentColor" fillOpacity="0.08" />
                     <text x="160" y="78" textAnchor="middle" fill="currentColor" fontSize="6" fontWeight="600" opacity="0.5">E95</text>
                   </motion.g>
-
-                  <motion.g
-                    animate={{ y: [0, -6, 0], opacity: [0.35, 0.55, 0.35] }}
-                    transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                  >
+                  <motion.g animate={{ y: [0, -6, 0], opacity: [0.35, 0.55, 0.35] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}>
                     <circle cx="155" cy="140" r="12" fill="currentColor" fillOpacity="0.08" />
                     <text x="155" y="143" textAnchor="middle" fill="currentColor" fontSize="6" fontWeight="600" opacity="0.5">E98</text>
                   </motion.g>
