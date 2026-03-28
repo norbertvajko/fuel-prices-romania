@@ -89,7 +89,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col bg-background overflow-hidden">
+    <div className="main-container flex flex-col bg-background overflow-hidden">
       {/* Show loader until chart is loaded */}
       {!isChartLoaded && (
         <FuelLoader onComplete={() => setIsChartLoaded(true)} progress={chartProgress} />

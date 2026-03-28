@@ -140,7 +140,10 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
               <h3 className="font-bold text-foreground text-lg leading-snug tracking-tight">
                 {name}
               </h3>
-              <span className="inline-flex items-center rounded-full bg-primary/8 border border-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
+              <span 
+                className="inline-flex items-center rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-semibold"
+                style={{ color: 'hsl(var(--foreground))' }}
+              >
                 {network}
               </span>
             </div>
@@ -301,7 +304,8 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
           <div className="mt-4">
             <button
               onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors active:scale-[0.97]"
+              className="flex items-center gap-1.5 text-xs font-medium hover:opacity-80 transition-colors active:scale-[0.97]"
+              style={{ color: 'hsl(var(--foreground))' }}
             >
               Detalii contact
               <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} />
@@ -326,23 +330,38 @@ const StationCard = forwardRef<HTMLDivElement, StationCardProps>(({
       <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-muted/30">
         <button
           onClick={() => setShowMap(!showMap)}
-          className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${showMap ? "text-primary" : "text-primary/70 hover:text-primary"}`}
+          className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${showMap ? "" : "opacity-70 hover:opacity-100"}`}
+          style={{ color: 'hsl(var(--foreground))' }}
         >
           <Map className="w-4 h-4" />
           Hartă
         </button>
-        <a href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+        <a 
+          href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="flex items-center gap-1.5 text-sm font-medium opacity-70 hover:opacity-100 transition-colors"
+          style={{ color: 'hsl(var(--foreground))' }}
+        >
           <Navigation className="w-4 h-4" />
           Navigare
         </a>
         {phone && (
-          <a href={`tel:${phone}`} className="flex items-center gap-1.5 text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+          <a 
+            href={`tel:${phone}`} 
+            className="flex items-center gap-1.5 text-sm font-medium opacity-70 hover:opacity-100 transition-colors"
+            style={{ color: 'hsl(var(--foreground))' }}
+          >
             <Phone className="w-4 h-4" />
             Sună
           </a>
         )}
         {email && (
-          <a href={`mailto:${email}`} className="flex items-center gap-1.5 text-sm font-medium text-primary/70 hover:text-primary transition-colors">
+          <a 
+            href={`mailto:${email}`} 
+            className="flex items-center gap-1.5 text-sm font-medium opacity-70 hover:opacity-100 transition-colors"
+            style={{ color: 'hsl(var(--foreground))' }}
+          >
             <Mail className="w-4 h-4" />
             Email
           </a>

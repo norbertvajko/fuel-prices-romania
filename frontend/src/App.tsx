@@ -5,6 +5,7 @@ import { Toaster as SonnerToaster } from "sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
+import ThemeToggle from "./components/ThemeToggle";
 
 // Create React Query client
 const queryClient = new QueryClient();
@@ -14,6 +15,9 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       {/* Tooltip context for all app */}
       <TooltipProvider>
+        {/* Theme Toggle Button */}
+        <ThemeToggle />
+        
         {/* Sonner toast */}
         <SonnerToaster position="top-right" />
         

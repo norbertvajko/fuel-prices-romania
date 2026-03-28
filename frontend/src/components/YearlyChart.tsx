@@ -28,9 +28,7 @@ const TIME_RANGES = [
   { key: "1W", label: "1S", days: 7 },
   { key: "1M", label: "1L", days: 30 },
   { key: "3M", label: "3L", days: 30 * 3 },
-  { key: "6M", label: "6L", days: 30 * 6 },
   { key: "1Y", label: "1A", days: 365 },
-  { key: "3Y", label: "3A", days: 365 * 3 },
   { key: "5Y", label: "5A", days: 365 * 5 },
   { key: "10Y", label: "10A", days: 365 * 10 },
   { key: "ALL", label: "Tot", days: 0 },
@@ -159,11 +157,11 @@ const YearlyChart = ({
           </p>
         </div>
 
-        <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+        <div className="flex flex-wrap gap-2 sm:gap-4 pb-1 sm:pb-0">
           {fuelTypes.map((fuel) => (
             <div
               key={fuel.key}
-              className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs whitespace-nowrap"
+              className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs"
             >
               <div
                 className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full flex-shrink-0"

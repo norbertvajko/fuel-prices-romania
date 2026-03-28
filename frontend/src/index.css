@@ -2,59 +2,87 @@
 
 @import "tailwindcss";
 
+/* =========================
+   HERO-DRIVEN DESIGN SYSTEM
+   ========================= */
+
 @theme {
-  /* Colors */
-  --color-background: hsl(210 40% 98%);
-  --color-foreground: hsl(222 47% 11%);
-
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222 47% 11%);
-
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222 47% 11%);
-
-  --color-primary: hsl(214 80% 40%);
-  --color-primary-foreground: hsl(0 0% 100%);
-
-  --color-secondary: hsl(215 20% 65%);
-  --color-secondary-foreground: hsl(222 47% 11%);
-
-  --color-hero-bg: hsl(220 80% 50%);
-  --color-hero-bg-dark: hsl(225 85% 38%);
-  --color-hero-foreground: hsl(0 0% 100%);
-  --color-hero-glow: hsl(210 100% 65%);
-
-  /* --color-hero-bg: hsl(222.2 47.4% 11.2%);
+  /* === HERO CORE === */
+  --color-hero-bg: hsl(222.2 47.4% 11.2%);
   --color-hero-bg-dark: hsl(222.2 47.4% 8%);
   --color-hero-foreground: hsl(210 40% 98%);
-  --color-hero-glow: hsl(217.2 91.2% 59.8%); */
+  --color-hero-glow: hsl(217.2 91.2% 59.8%);
 
-  --color-muted: hsl(210 40% 96%);
-  --color-muted-foreground: hsl(215 16% 47%);
+  /* === GLOBAL SURFACES === */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
 
-  --color-accent: hsl(210 40% 96%);
-  --color-accent-foreground: hsl(222 47% 11%);
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
 
-  --color-success: hsl(142 72% 37%);
-  --color-success-foreground: hsl(0 0% 100%);
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
 
-  --color-destructive: hsl(0 84% 60%);
-  --color-destructive-foreground: hsl(0 0% 100%);
+  /* === PRIMARY SYSTEM (HERO BG BASED) === */
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
 
-  --color-border: hsl(214 32% 91%);
-  --color-input: hsl(214 32% 91%);
-  --color-ring: hsl(214 80% 40%);
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
 
-  /* Radius */
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  /* === FEEDBACK COLORS === */
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  /* === UI ELEMENTS === */
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* === FUEL COLORS === */
+  --color-fuel-motorina: hsl(var(--fuel-motorina));
+  --color-fuel-motorina-plus: hsl(var(--fuel-motorina-plus));
+  --color-fuel-benzina95: hsl(var(--fuel-benzina95));
+  --color-fuel-benzina98: hsl(var(--fuel-benzina98));
+  --color-fuel-gpl: hsl(var(--fuel-gpl));
+
+  /* === SIDEBAR === */
+  --color-sidebar-background: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  /* === TYPOGRAPHY === */
+  --font-sans: 'Inter', sans-serif;
+
+  /* === RADIUS === */
+  --radius: var(--radius);
   --radius-xl: 0.75rem;
 
-  /* Animations */
+  /* === BREAKPOINTS === */
+  --breakpoint-xs: 30rem;
+
+  /* === ANIMATIONS === */
   --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-skeleton-pulse: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-
-  /* Font */
-  --font-sans: 'Inter', sans-serif;
 }
+
+/* =========================
+   KEYFRAMES
+   ========================= */
 
 @keyframes fade-in-up {
   from {
@@ -80,120 +108,215 @@
   }
 }
 
-/* Base styles */
-* {
-  border-color: hsl(214 32% 91%);
-}
-
-body {
-  background-color: hsl(210 40% 98%);
-  color: hsl(222 47% 11%);
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Utilities */
-.price-highlight {
-  color: hsl(142 72% 37%);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Custom breakpoint for extra small screens */
-@theme {
-  --breakpoint-xs: 30rem;
-  /* 480px - for very small phones */
-}
-
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
   }
 }
 
-/* Mobile-first base styles */
-@media (max-width: 640px) {
-  html {
-    font-size: 14px;
-  }
-}
+/* =========================
+   BASE STYLES
+   ========================= */
 
 @layer base {
   :root {
-    --background: 210 33% 96%;
-    --foreground: 222.2 84% 4.9%;
+    color-scheme: dark;
+
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 47.4% 13%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 47.4% 13%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 222.2 30% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222.2 25% 16%;
+    --muted-foreground: 210 20% 70%;
+
+    --accent: 222.2 30% 16%;
+    --accent-foreground: 210 40% 98%;
+
+    --success: 155 60% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222.2 25% 20%;
+    --input: 222.2 25% 20%;
+    --ring: 217.2 91.2% 59.8%;
+
+    --radius: 0.75rem;
+
+    /* optional domain-specific colors */
+    --fuel-motorina: 217.2 91.2% 59.8%;
+    --fuel-motorina-plus: 220 80% 60%;
+    --fuel-benzina95: 40 90% 55%;
+    --fuel-benzina98: 25 90% 55%;
+    --fuel-gpl: 155 60% 45%;
+
+    --sidebar-background: 222.2 47.4% 9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 222.2 47.4% 11.2%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 222.2 30% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222.2 25% 18%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 47.4% 13%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 47.4% 13%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 222.2 30% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222.2 25% 16%;
+    --muted-foreground: 210 20% 70%;
+
+    --accent: 222.2 30% 16%;
+    --accent-foreground: 210 40% 98%;
+
+    --success: 155 60% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222.2 25% 20%;
+    --input: 222.2 25% 20%;
+    --ring: 217.2 91.2% 59.8%;
+
+    --radius: 0.75rem;
+
+    --fuel-motorina: 217.2 91.2% 59.8%;
+    --fuel-motorina-plus: 220 80% 60%;
+    --fuel-benzina95: 40 90% 55%;
+    --fuel-benzina98: 25 90% 55%;
+    --fuel-gpl: 155 60% 45%;
+
+    --sidebar-background: 222.2 47.4% 9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 222.2 47.4% 11.2%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 222.2 30% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222.2 25% 18%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .light {
+    color-scheme: light;
+
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 47.4% 11.2%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222.2 47.4% 11.2%;
 
-    --primary: 214 80% 51%;
+    --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 222.2 47.4% 11.2%;
 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --success: 155 60% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 214 80% 51%;
+    --ring: 217.2 91.2% 59.8%;
 
     --radius: 0.75rem;
 
-    --fuel-motorina: 214 80% 51%;
-    --fuel-motorina-plus: 220 70% 55%;
+    --fuel-motorina: 217.2 91.2% 59.8%;
+    --fuel-motorina-plus: 220 80% 60%;
     --fuel-benzina95: 40 90% 55%;
     --fuel-benzina98: 25 90% 55%;
     --fuel-gpl: 155 60% 45%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 47.4% 11.2%;
+    --sidebar-primary: 222.2 47.4% 11.2%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+}
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 214 80% 51%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+/* =========================
+   GLOBAL STYLES
+   ========================= */
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode: hero background covers entire page */
+.dark body,
+.dark .main-container {
+  background: linear-gradient(to bottom right, hsl(222.2 47.4% 11.2%), hsl(222.2 47.4% 11.2%), hsl(222.2 47.4% 8%)) !important;
+  background-attachment: fixed !important;
+}
+
+/* =========================
+   UTILITIES
+   ========================= */
+
+.price-highlight {
+  color: hsl(var(--success));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================
+   MOBILE TWEAK
+   ========================= */
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
   }
 }
