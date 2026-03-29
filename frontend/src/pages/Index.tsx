@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import HeroSection from "../components/HeroSection";
 import YearlyChart from "../components/YearlyChart";
 import CityAverages from "../components/CityAverages";
@@ -19,9 +19,20 @@ const Index = () => {
   const [isChartLoaded, setIsChartLoaded] = useState(false);
   const [chartProgress, setChartProgress] = useState(0);
   const cityAveragesRef = useRef<HTMLDivElement>(null);
+  const [isLightMode, setIsLightMode] = useState(false);
 
   // Track last known city for skeleton display
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsLightMode(document.documentElement.classList.contains("light"));
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   // Fetch data from your own API (scrapes fresh data)
   const doSearch = useCallback(async (city: string, lat?: number, lon?: number) => {
@@ -89,102 +100,110 @@ const Index = () => {
   };
 
   return (
-    <div className="main-container flex flex-col bg-background overflow-hidden">
+    <div className={`main-container flex flex-col overflow-hidden ${
+      isLightMode
+        ? "bg-white text-gray-900"
+        : "bg-gradient-to-br from-hero-bg via-hero-bg to-hero-bg-dark text-hero-foreground"
+    }`}>
       {/* Show loader until chart is loaded */}
       {!isChartLoaded && (
         <FuelLoader onComplete={() => setIsChartLoaded(true)} progress={chartProgress} />
       )}
-
-      <HeroSection onSearch={handleSearchFromHero} />
+      {/* TODO: pass real national average price from API once available */}
+      <HeroSection onSearch={handleSearchFromHero} nationalDieselAvgPrice={"10.3"} />
 
       {/* Chart - always show */}
-      <section className="mx-auto px-4 -mt-12 relative z-10 w-full">
+      <section className="mx-auto px-4 -mt-12 z-10 w-full">
         <YearlyChart
           onLoadingComplete={() => setIsChartLoaded(true)}
           onProgress={(progress) => setChartProgress(progress)}
         />
       </section>
       {/* Today's prices - Real data from your API */}
-      <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
-        {isLoading || refreshing ? (
-          <TodayPricesSkeleton />
-        ) : (
-          <CityAverages
-            city={lastCity || currentCity || ""}
-            stations={stations}
-            onRefresh={handleRefresh}
-            isRefreshing={refreshing}
-            isLoading={isLoading}
-            lastUpdated={lastUpdated}
-          />
-        )}
-      </section>
+      {(isLoading || refreshing || stations.length > 0) && (
+        <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
+          {isLoading || refreshing ? (
+            <TodayPricesSkeleton />
+          ) : (
+            <CityAverages
+              city={lastCity || currentCity || ""}
+              stations={stations}
+              onRefresh={handleRefresh}
+              isRefreshing={refreshing}
+              isLoading={isLoading}
+              lastUpdated={lastUpdated}
+            />
+          )}
+        </section>
+      )}
 
       {/* Stations section - Real data from your API */}
-      <section className="max-w-6xl mx-auto px-4 mt-8 w-full">
-        {isLoading ? (
-          <StationListSkeleton />
-        ) : stations.length > 0 ? (
-          <div className="space-y-4">
-            {(() => {
-              // Calculate cheapest price for each station (diesel or benzina)
-              const stationsWithCheapest = stations.map((station, idx) => {
-                const dieselPrices = station.prices.filter(p =>
-                  p.fuel.includes('Motorină') && p.price > 0
-                );
-                const benzinaPrices = station.prices.filter(p =>
-                  p.fuel.includes('Benzină') && p.price > 0
-                );
+      {(isLoading || stations.length > 0 || hasSearched) && (
+        <section className="max-w-6xl mx-auto px-4 mt-8 w-full">
+          {isLoading ? (
+            <StationListSkeleton />
+          ) : stations.length > 0 ? (
+            <div className="space-y-4">
+              {(() => {
+                // Calculate cheapest price for each station (diesel or benzina)
+                const stationsWithCheapest = stations.map((station, idx) => {
+                  const dieselPrices = station.prices.filter(p =>
+                    p.fuel.includes('Motorină') && p.price > 0
+                  );
+                  const benzinaPrices = station.prices.filter(p =>
+                    p.fuel.includes('Benzină') && p.price > 0
+                  );
 
-                const minDiesel = dieselPrices.length > 0 ? Math.min(...dieselPrices.map(p => p.price)) : Infinity;
-                const minBenzina = benzinaPrices.length > 0 ? Math.min(...benzinaPrices.map(p => p.price)) : Infinity;
-                const cheapestPrice = Math.min(minDiesel, minBenzina);
+                  const minDiesel = dieselPrices.length > 0 ? Math.min(...dieselPrices.map(p => p.price)) : Infinity;
+                  const minBenzina = benzinaPrices.length > 0 ? Math.min(...benzinaPrices.map(p => p.price)) : Infinity;
+                  const cheapestPrice = Math.min(minDiesel, minBenzina);
 
-                return {
-                  station,
-                  originalIndex: idx,
-                  cheapestPrice,
-                  minDiesel,
-                  minBenzina
-                };
-              });
+                  return {
+                    station,
+                    originalIndex: idx,
+                    cheapestPrice,
+                    minDiesel,
+                    minBenzina
+                  };
+                });
 
-              // Find cheapest diesel and benzina stations
-              let cheapestDieselIndex = -1;
-              let cheapestDieselPrice = Infinity;
-              let cheapestBenzinaIndex = -1;
-              let cheapestBenzinaPrice = Infinity;
+                // Find cheapest diesel and benzina stations
+                let cheapestDieselIndex = -1;
+                let cheapestDieselPrice = Infinity;
+                let cheapestBenzinaIndex = -1;
+                let cheapestBenzinaPrice = Infinity;
 
-              stationsWithCheapest.forEach((item, idx) => {
-                if (item.minDiesel < cheapestDieselPrice) {
-                  cheapestDieselPrice = item.minDiesel;
-                  cheapestDieselIndex = idx;
-                }
-                if (item.minBenzina < cheapestBenzinaPrice) {
-                  cheapestBenzinaPrice = item.minBenzina;
-                  cheapestBenzinaIndex = idx;
-                }
-              });
+                stationsWithCheapest.forEach((item, idx) => {
+                  if (item.minDiesel < cheapestDieselPrice) {
+                    cheapestDieselPrice = item.minDiesel;
+                    cheapestDieselIndex = idx;
+                  }
+                  if (item.minBenzina < cheapestBenzinaPrice) {
+                    cheapestBenzinaPrice = item.minBenzina;
+                    cheapestBenzinaIndex = idx;
+                  }
+                });
 
-              // Use stations in the order returned by backend (already sorted by diesel price)
-              return stationsWithCheapest.map((item, index) => (
-                <StationCard
-                  key={item.station.name + index}
-                  station={item.station}
-                  cheapestPrice={item.cheapestPrice}
-                  isMostCheapestDiesel={index === cheapestDieselIndex}
-                  isMostCheapestBenzina={index === cheapestBenzinaIndex}
-                  index={index}
-                />
-              ));
-            })()}
-          </div>
-        ) : hasSearched ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
-          </div>
-        ) : null}
-      </section>
+                // Use stations in the order returned by backend (already sorted by diesel price)
+                return stationsWithCheapest.map((item, index) => (
+                  <StationCard
+                    key={item.station.name + index}
+                    station={item.station}
+                    cheapestPrice={item.cheapestPrice}
+                    isMostCheapestDiesel={index === cheapestDieselIndex}
+                    isMostCheapestBenzina={index === cheapestBenzinaIndex}
+                    index={index}
+                  />
+                ));
+              })()}
+            </div>
+          ) : hasSearched ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
+            </div>
+          ) : null}
+        </section>
+      )}
       <Footer />
     </div>
   );

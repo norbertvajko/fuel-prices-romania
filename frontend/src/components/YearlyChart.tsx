@@ -147,7 +147,7 @@ const YearlyChart = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-ring" />
             <h2 className="text-base sm:text-lg font-bold text-card-foreground">
               Evoluția prețurilor
             </h2>
@@ -203,7 +203,7 @@ const YearlyChart = ({
   if (loading || filteredData.length === 0) {
     return (
       <section ref={chartContainerRef} className="mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-[950px]">
-        <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-lg">
+        <div className="rounded-2xl border border-border p-4 sm:p-6 shadow-lg">
           {renderHeader()}
           <div className="h-[280px] sm:h-[350px] flex items-center justify-center">
             <p className="text-muted-foreground text-xs sm:text-sm text-center">
@@ -218,8 +218,8 @@ const YearlyChart = ({
   }
 
   return (
-    <section ref={chartContainerRef} className="mx-auto px-4 sm:px-6 -mt-10 sm:-mt-12 relative z-10 max-w-[950px]">
-      <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-lg">
+    <section ref={chartContainerRef} className="mx-auto px-4 sm:px-6 -mt-26 sm:-mt-12 relative z-10 max-w-[950px]">
+      <div className="rounded-2xl border border-border p-4 sm:p-6 shadow-lg">
         {renderHeader()}
 
         <ChartContainer

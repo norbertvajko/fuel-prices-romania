@@ -3,12 +3,12 @@ import { Moon, Sun } from "lucide-react";
 
 const ThemeToggle = () => {
   const [isDark, setIsDark] = useState(() => {
-    // Check localStorage first, then system preference
+    // Check localStorage first, then default to dark
     const saved = localStorage.getItem("theme");
     if (saved) {
       return saved === "dark";
     }
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return true; // Default to dark mode
   });
 
   useEffect(() => {
@@ -30,13 +30,13 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="fixed top-4 right-4 z-50 p-3 rounded-full bg-card border border-border shadow-lg hover:bg-accent transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 p-2 sm:p-3 rounded-full bg-card border border-border shadow-lg hover:bg-accent transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (
-        <Sun className="w-5 h-5 text-foreground" />
+        <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
       ) : (
-        <Moon className="w-5 h-5 text-foreground" />
+        <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
       )}
     </button>
   );
