@@ -202,8 +202,8 @@ const YearlyChart = ({
 
   if (loading || filteredData.length === 0) {
     return (
-      <section ref={chartContainerRef} className="mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-[950px]">
-        <div className="rounded-2xl border border-border p-4 sm:p-6 shadow-lg">
+      <section ref={chartContainerRef} className="rounded-2xl border border-border  mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-5xl">
+        <div className="p-4 sm:p-6 shadow-lg">
           {renderHeader()}
           <div className="h-[280px] sm:h-[350px] flex items-center justify-center">
             <p className="text-muted-foreground text-xs sm:text-sm text-center">
@@ -218,8 +218,8 @@ const YearlyChart = ({
   }
 
   return (
-    <section ref={chartContainerRef} className="mx-auto px-4 sm:px-6 -mt-26 sm:-mt-12 relative z-10 max-w-[950px]">
-      <div className="rounded-2xl border border-border p-4 sm:p-6 shadow-lg">
+    <section ref={chartContainerRef} className="rounded-2xl border border-border mx-auto px-4 sm:px-6 -mt-26 sm:-mt-12 relative z-10 max-w-5xl">
+      <div className=" p-4 sm:p-6 shadow-lg">
         {renderHeader()}
 
         <ChartContainer
