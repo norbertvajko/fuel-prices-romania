@@ -127,7 +127,7 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
   };
 
   return (
-    <div className={`overflow-hidden px-6 pt-10 pb-44 lg:pt-14 lg:pb-32 `}>
+    <div className={`overflow-hidden px-6 pt-10 pb-44 lg:pt-14 lg:pb-27 `}>
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl ${isLightMode ? "bg-blue-500 opacity-5" : "bg-hero-glow opacity-10"

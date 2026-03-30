@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 
 interface FuelIllustrationProps {
@@ -7,18 +8,23 @@ interface FuelIllustrationProps {
   isLightMode: boolean;
 }
 
-const FuelIllustration = ({
+const FuelIllustration = memo(({
   displayPrice,
   displayLabel,
   currentDate,
   isLightMode,
 }: FuelIllustrationProps) => {
-  const stroke = isLightMode ? "hsl(217 91% 60%)" : "hsl(217 91% 65%)";
-  const text = isLightMode ? "hsl(217 91% 40%)" : "hsl(217 91% 75%)";
-  const cardBg = isLightMode ? "hsl(210 40% 100%)" : "hsl(222 47% 16%)";
-  const priceBg = isLightMode ? "hsl(213 80% 97%)" : "hsl(222 47% 24%)";
-  const baseBg = isLightMode ? "hsl(210 40% 92%)" : "hsl(222 47% 28%)";
-  const glowColor = isLightMode ? "hsl(217 91% 60%)" : "hsl(217 91% 55%)";
+  const colors = useMemo(() => ({
+    stroke: isLightMode ? "hsl(217 91% 60%)" : "hsl(217 91% 65%)",
+    text: isLightMode ? "hsl(217 91% 40%)" : "hsl(217 91% 75%)",
+    cardBg: isLightMode ? "hsl(210 40% 100%)" : "hsl(222 47% 16%)",
+    priceBg: isLightMode ? "hsl(213 80% 97%)" : "hsl(222 47% 24%)",
+    baseBg: isLightMode ? "hsl(210 40% 92%)" : "hsl(222 47% 28%)",
+    glowColor: isLightMode ? "hsl(217 91% 60%)" : "hsl(217 91% 55%)",
+    gplColor: isLightMode ? "hsl(155 55% 48%)" : "hsl(155 65% 42%)",
+    e95Color: isLightMode ? "hsl(40 80% 55%)" : "hsl(40 85% 50%)",
+    dieselColor: isLightMode ? "hsl(200 60% 45%)" : "hsl(200 70% 40%)",
+  }), [isLightMode]);
 
   return (
     <motion.div
@@ -27,24 +33,30 @@ const FuelIllustration = ({
       transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
       className="hidden lg:flex items-center justify-center"
     >
-      <div className="relative w-80 h-80 xl:w-96 xl:h-96">
+      <div className="relative w-73 h-73 xl:w-81 xl:h-81">
         {/* Ambient glow behind everything */}
         <div
           className="absolute inset-0 rounded-full blur-3xl opacity-20 fuel-glow-pulse"
-          style={{ background: `radial-gradient(circle, ${glowColor}, transparent 70%)` }}
+          style={{ 
+            background: `radial-gradient(circle, ${colors.glowColor}, transparent 70%)`,
+            willChange: "opacity, transform"
+          }}
         />
 
-        <div className="absolute inset-0 flex items-center justify-center fuel-float">
+        <div 
+          className="absolute inset-0 flex items-center justify-center fuel-float"
+          style={{ willChange: "transform" }}
+        >
           <svg viewBox="0 0 240 240" className="w-full h-full" fill="none">
             <defs>
               {/* Gradient for outer rings */}
               <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor={stroke} stopOpacity="0.5" />
-                <stop offset="100%" stopColor={stroke} stopOpacity="0.1" />
+                <stop offset="0%" stopColor={colors.stroke} stopOpacity="0.5" />
+                <stop offset="100%" stopColor={colors.stroke} stopOpacity="0.1" />
               </linearGradient>
               {/* Card shadow filter */}
               <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor={stroke} floodOpacity="0.18" />
+                <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor={colors.stroke} floodOpacity="0.18" />
               </filter>
               {/* Glow filter for bubbles */}
               <filter id="bubbleGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -56,8 +68,8 @@ const FuelIllustration = ({
               </filter>
               {/* Nozzle gradient */}
               <linearGradient id="nozzleGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={stroke} stopOpacity="0.9" />
-                <stop offset="100%" stopColor={stroke} stopOpacity="0.4" />
+                <stop offset="0%" stopColor={colors.stroke} stopOpacity="0.9" />
+                <stop offset="100%" stopColor={colors.stroke} stopOpacity="0.4" />
               </linearGradient>
             </defs>
 
@@ -68,58 +80,58 @@ const FuelIllustration = ({
               strokeWidth="0.8"
               strokeDasharray="4 8"
               className="fuel-spin-slow"
-              style={{ transformOrigin: "120px 120px" }}
+              style={{ transformOrigin: "120px 120px", willChange: "transform" }}
             />
             <circle
               cx="120" cy="120" r="95"
-              stroke={stroke}
+              stroke={colors.stroke}
               strokeWidth="0.5"
               strokeOpacity="0.25"
               strokeDasharray="2 12"
               className="fuel-spin-reverse"
-              style={{ transformOrigin: "120px 120px" }}
+              style={{ transformOrigin: "120px 120px", willChange: "transform" }}
             />
 
             {/* Soft inner glow */}
-            <circle cx="105" cy="100" r="40" fill={glowColor} fillOpacity="0.06" className="fuel-pulse-soft" />
+            <circle cx="105" cy="100" r="40" fill={colors.glowColor} fillOpacity="0.06" className="fuel-pulse-soft" />
 
             {/* ===== MAIN FUEL PUMP ===== */}
             <g filter="url(#cardShadow)">
               {/* Card body */}
-              <rect x="72" y="62" width="68" height="92" rx="10" fill={cardBg} fillOpacity="0.95" stroke={stroke} strokeWidth="1.2" strokeOpacity="0.5" />
+              <rect x="72" y="62" width="68" height="92" rx="10" fill={colors.cardBg} fillOpacity="0.95" stroke={colors.stroke} strokeWidth="1.2" strokeOpacity="0.5" />
               
               {/* Glass shine on card */}
-              <rect x="74" y="64" width="64" height="20" rx="8" fill={stroke} fillOpacity="0.04" />
+              <rect x="74" y="64" width="64" height="20" rx="8" fill={colors.stroke} fillOpacity="0.04" />
 
               {/* Price display */}
-              <rect x="82" y="76" width="48" height="28" rx="6" fill={priceBg} fillOpacity="0.95" stroke={stroke} strokeWidth="0.8" strokeOpacity="0.3" />
+              <rect x="82" y="76" width="48" height="28" rx="6" fill={colors.priceBg} fillOpacity="0.95" stroke={colors.stroke} strokeWidth="0.8" strokeOpacity="0.3" />
 
               {/* Price text */}
-              <text x="106" y="95" textAnchor="middle" fill={text} fontSize="13" fontWeight="700" fontFamily="system-ui, sans-serif">
+              <text x="106" y="95" textAnchor="middle" fill={colors.text} fontSize="13" fontWeight="700" fontFamily="system-ui, sans-serif">
                 {displayPrice}
               </text>
 
               {/* Label */}
-              <text x="106" y="120" textAnchor="middle" fill={text} fontSize="8" fontWeight="600" fontFamily="system-ui, sans-serif" opacity="0.85">
+              <text x="106" y="120" textAnchor="middle" fill={colors.text} fontSize="8" fontWeight="600" fontFamily="system-ui, sans-serif" opacity="0.85">
                 {displayLabel}
               </text>
 
               {/* Separator line */}
-              <line x1="88" y1="128" x2="124" y2="128" stroke={stroke} strokeWidth="0.5" strokeOpacity="0.2" />
+              <line x1="88" y1="128" x2="124" y2="128" stroke={colors.stroke} strokeWidth="0.5" strokeOpacity="0.2" />
 
               {/* Date */}
-              <text x="106" y="142" textAnchor="middle" fill={text} fontSize="6.5" fontWeight="500" fontFamily="system-ui, sans-serif" opacity="0.6">
+              <text x="106" y="142" textAnchor="middle" fill={colors.text} fontSize="6.5" fontWeight="500" fontFamily="system-ui, sans-serif" opacity="0.6">
                 {currentDate}
               </text>
 
               {/* Base platform */}
-              <rect x="68" y="154" width="76" height="10" rx="5" fill={baseBg} fillOpacity="0.6" />
+              <rect x="68" y="154" width="76" height="10" rx="5" fill={colors.baseBg} fillOpacity="0.6" />
             </g>
 
             {/* ===== NOZZLE ===== */}
             <g>
               {/* Nozzle connector */}
-              <rect x="140" y="72" width="18" height="5" rx="2.5" fill={stroke} fillOpacity="0.6" />
+              <rect x="140" y="72" width="18" height="5" rx="2.5" fill={colors.stroke} fillOpacity="0.6" />
               {/* Nozzle arm */}
               <path
                 d="M158 74.5 L170 58 L170 100 L162 100 L162 80 L158 80"
@@ -131,7 +143,7 @@ const FuelIllustration = ({
               {/* Fuel stream */}
               <path
                 d="M170 100 Q176 118, 164 128 Q152 138, 158 150"
-                stroke={stroke}
+                stroke={colors.stroke}
                 strokeWidth="2.5"
                 strokeOpacity="0.5"
                 fill="none"
@@ -140,16 +152,16 @@ const FuelIllustration = ({
               />
               {/* Drip collector */}
               <g className="fuel-bounce">
-                <rect x="153" y="148" width="12" height="7" rx="3" fill={stroke} fillOpacity="0.6" />
+                <rect x="153" y="148" width="12" height="7" rx="3" fill={colors.stroke} fillOpacity="0.6" />
               </g>
               {/* Dripping drop */}
-              <circle cx="159" cy="160" r="2.5" fill={stroke} fillOpacity="0.7" className="fuel-drip" />
+              <circle cx="159" cy="160" r="2.5" fill={colors.stroke} fillOpacity="0.7" className="fuel-drip" />
             </g>
 
             {/* ===== FLOATING BUBBLES ===== */}
             {/* GPL */}
             <g className="fuel-orbit-1" filter="url(#bubbleGlow)">
-              <circle cx="38" cy="68" r="20" fill={isLightMode ? "hsl(155 55% 48%)" : "hsl(155 65% 42%)"} fillOpacity="0.8" />
+              <circle cx="38" cy="68" r="20" fill={colors.gplColor} fillOpacity="0.8" />
               <text x="38" y="72" textAnchor="middle" fill="hsl(0 0% 100%)" fontSize="8.5" fontWeight="700" fontFamily="system-ui, sans-serif">
                 GPL
               </text>
@@ -157,7 +169,7 @@ const FuelIllustration = ({
 
             {/* E95 */}
             <g className="fuel-orbit-2" filter="url(#bubbleGlow)">
-              <circle cx="195" cy="85" r="18" fill={isLightMode ? "hsl(40 80% 55%)" : "hsl(40 85% 50%)"} fillOpacity="0.8" />
+              <circle cx="195" cy="85" r="18" fill={colors.e95Color} fillOpacity="0.8" />
               <text x="195" y="89" textAnchor="middle" fill="hsl(0 0% 100%)" fontSize="7.5" fontWeight="700" fontFamily="system-ui, sans-serif">
                 E95
               </text>
@@ -173,17 +185,17 @@ const FuelIllustration = ({
 
             {/* Diesel */}
             <g className="fuel-orbit-4" filter="url(#bubbleGlow)">
-              <circle cx="42" cy="160" r="14" fill={isLightMode ? "hsl(200 60% 45%)" : "hsl(200 70% 40%)"} fillOpacity="0.75" />
+              <circle cx="42" cy="160" r="14" fill={colors.dieselColor} fillOpacity="0.75" />
               <text x="42" y="164" textAnchor="middle" fill="hsl(0 0% 100%)" fontSize="6.5" fontWeight="700" fontFamily="system-ui, sans-serif">
                 DSL
               </text>
             </g>
 
             {/* Tiny decorative dots */}
-            <circle cx="60" cy="40" r="2" fill={stroke} fillOpacity="0.2" className="fuel-pulse-dot" />
-            <circle cx="185" cy="48" r="1.5" fill={stroke} fillOpacity="0.15" className="fuel-pulse-dot-2" />
-            <circle cx="50" cy="200" r="1.8" fill={stroke} fillOpacity="0.18" className="fuel-pulse-dot" />
-            <circle cx="200" cy="195" r="2.2" fill={stroke} fillOpacity="0.12" className="fuel-pulse-dot-2" />
+            <circle cx="60" cy="40" r="2" fill={colors.stroke} fillOpacity="0.2" className="fuel-pulse-dot" />
+            <circle cx="185" cy="48" r="1.5" fill={colors.stroke} fillOpacity="0.15" className="fuel-pulse-dot-2" />
+            <circle cx="50" cy="200" r="1.8" fill={colors.stroke} fillOpacity="0.18" className="fuel-pulse-dot" />
+            <circle cx="200" cy="195" r="2.2" fill={colors.stroke} fillOpacity="0.12" className="fuel-pulse-dot-2" />
           </svg>
         </div>
       </div>
@@ -273,6 +285,8 @@ const FuelIllustration = ({
       `}</style>
     </motion.div>
   );
-};
+});
+
+FuelIllustration.displayName = "FuelIllustration";
 
 export default FuelIllustration;
