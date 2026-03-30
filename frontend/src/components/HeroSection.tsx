@@ -126,16 +126,6 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
     );
   };
 
-  // Color helpers
-  const getStrokeColor = () => 
-    isLightMode ? "hsl(217.2 91.2% 60%)" : "hsl(217.2 91.2% 50%)";
-
-  const getFillColor = () => 
-    isLightMode ? "hsl(210 40% 96%)" : "hsl(222.2 47.4% 25%)";
-
-  const getTextColor = () => 
-    isLightMode ? "hsl(217.2 91.2% 45%)" : "hsl(217.2 91.2% 60%)";
-
   return (
     <div className={`overflow-hidden px-6 pt-10 pb-44 lg:pt-14 lg:pb-32 `}>
       {/* Decorative background elements */}

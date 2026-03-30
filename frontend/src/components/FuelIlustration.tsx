@@ -14,7 +14,6 @@ const FuelIllustration = ({
   isLightMode,
 }: FuelIllustrationProps) => {
   const stroke = isLightMode ? "hsl(217 91% 60%)" : "hsl(217 91% 65%)";
-  const fill = isLightMode ? "hsl(210 40% 97%)" : "hsl(222 47% 20%)";
   const text = isLightMode ? "hsl(217 91% 40%)" : "hsl(217 91% 75%)";
   const cardBg = isLightMode ? "hsl(210 40% 100%)" : "hsl(222 47% 16%)";
   const priceBg = isLightMode ? "hsl(213 80% 97%)" : "hsl(222 47% 24%)";
