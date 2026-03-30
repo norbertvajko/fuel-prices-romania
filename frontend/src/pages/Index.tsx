@@ -9,6 +9,19 @@ import { API_URL } from "../constants";
 import type { Station } from "../types";
 import Footer from "../components/Footer";
 
+interface NationalAverageEntry {
+  date: string;
+  fuel_type: string;
+  price: number;
+}
+
+interface FuelPrice {
+  price: string;
+  label: string;
+}
+
+type RawEntry = { date: string; fuel_type: string; price: number };
+
 const Index = () => {
   const [stations, setStations] = useState<Station[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +33,9 @@ const Index = () => {
   const [chartProgress, setChartProgress] = useState(0);
   const cityAveragesRef = useRef<HTMLDivElement>(null);
   const [isLightMode, setIsLightMode] = useState(false);
+  const [nationalFuelPrices, setNationalFuelPrices] = useState<FuelPrice[]>([]);
+  const [currentFuelIndex, setCurrentFuelIndex] = useState(0);
+  const [nationalAverageHistory, setNationalAverageHistory] = useState<RawEntry[]>([]);
 
   // Track last known city for skeleton display
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
@@ -33,6 +49,75 @@ const Index = () => {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
+
+  // Fetch national average prices for all fuel types
+  useEffect(() => {
+    const fetchNationalAverage = async () => {
+      try {
+        const response = await fetch(`${API_URL}/price-history/national?days=all`);
+        const result = await response.json();
+        
+        if (result.history && result.history.length > 0) {
+          // Store full history for YearlyChart
+          setNationalAverageHistory(result.history);
+
+          // Get today's date in YYYY-MM-DD format
+          const today = new Date().toISOString().split('T')[0];
+
+          // Get today's price for each fuel type
+          const fuelTypes = [
+            { fuel_type: "diesel", label: "Motorină" },
+            { fuel_type: "diesel_plus", label: "Motorină Plus" },
+            { fuel_type: "b95", label: "Benzină 95" },
+            { fuel_type: "b98", label: "Benzină 98" },
+            { fuel_type: "gpl", label: "GPL" },
+          ];
+
+          const prices: FuelPrice[] = [];
+          fuelTypes.forEach(({ fuel_type, label }) => {
+            // Find today's entry for this fuel type
+            const todayEntry = result.history.find(
+              (entry: NationalAverageEntry) => 
+                entry.fuel_type === fuel_type && entry.date === today
+            );
+            
+            // If no entry for today, get the most recent entry
+            const latestEntry = todayEntry || result.history
+              .filter((entry: NationalAverageEntry) => entry.fuel_type === fuel_type)
+              .sort((a: NationalAverageEntry, b: NationalAverageEntry) => 
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+              )[0];
+            
+            if (latestEntry) {
+              prices.push({
+                price: latestEntry.price.toFixed(1),
+                label,
+              });
+            }
+          });
+
+          if (prices.length > 0) {
+            setNationalFuelPrices(prices);
+          }
+        }
+      } catch (error) {
+        // Silently fail - will use fallback value
+      }
+    };
+
+    fetchNationalAverage();
+  }, []);
+
+  // Cycle through fuel types every 3 seconds
+  useEffect(() => {
+    if (nationalFuelPrices.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentFuelIndex((prev) => (prev + 1) % nationalFuelPrices.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [nationalFuelPrices]);
 
   // Fetch data from your own API (scrapes fresh data)
   const doSearch = useCallback(async (city: string, lat?: number, lon?: number) => {
@@ -109,14 +194,18 @@ const Index = () => {
       {!isChartLoaded && (
         <FuelLoader onComplete={() => setIsChartLoaded(true)} progress={chartProgress} />
       )}
-      {/* TODO: pass real national average price from API once available */}
-      <HeroSection onSearch={handleSearchFromHero} nationalDieselAvgPrice={"10.3"} />
+      <HeroSection
+        onSearch={handleSearchFromHero}
+        nationalDieselAvgPrice={nationalFuelPrices[currentFuelIndex]?.price || "10.3"}
+        nationalFuelLabel={nationalFuelPrices[currentFuelIndex]?.label || "Motorină"}
+      />
 
       {/* Chart - always show */}
       <section className="mx-auto px-4 -mt-12 z-10 w-full">
         <YearlyChart
           onLoadingComplete={() => setIsChartLoaded(true)}
           onProgress={(progress) => setChartProgress(progress)}
+          data={nationalAverageHistory}
         />
       </section>
       {/* Today's prices - Real data from your API */}

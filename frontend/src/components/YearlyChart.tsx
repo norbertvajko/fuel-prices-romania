@@ -67,44 +67,55 @@ const transformData = (history: RawEntry[]) => {
 const YearlyChart = ({
   onLoadingComplete,
   onProgress,
+  data,
 }: {
   onLoadingComplete?: () => void;
   onProgress?: (progress: number) => void;
+  data?: RawEntry[];
 } = {}) => {
   const [rawData, setRawData] = useState<RawEntry[]>([]);
   const [activeRange, setActiveRange] = useState<RangeKey>("ALL");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const startTime = Date.now();
-      const estimatedDuration = 2000;
+    if (data && data.length > 0) {
+      // Use data passed from parent
+      setRawData(data);
+      setLoading(false);
+      onProgress?.(100);
+      onLoadingComplete?.();
+    } else {
+      // Fallback: fetch data if not provided
+      const fetchData = async () => {
+        const startTime = Date.now();
+        const estimatedDuration = 2000;
 
-      const progressInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min((elapsed / estimatedDuration) * 90, 90);
-        onProgress?.(progress);
-      }, 50);
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min((elapsed / estimatedDuration) * 90, 90);
+          onProgress?.(progress);
+        }, 50);
 
-      try {
-        // Fetch all available history (from 2016)
-        const response = await fetch(
-          `${API_URL}/price-history/national?days=all`
-        );
-        const result = await response.json();
-        setRawData(result.history || []);
-        onProgress?.(100);
-      } catch (err) {
-        onProgress?.(100);
-      } finally {
-        setLoading(false);
-        clearInterval(progressInterval);
-        onLoadingComplete?.();
-      }
-    };
+        try {
+          // Fetch all available history (from 2016)
+          const response = await fetch(
+            `${API_URL}/price-history/national?days=all`
+          );
+          const result = await response.json();
+          setRawData(result.history || []);
+          onProgress?.(100);
+        } catch (err) {
+          onProgress?.(100);
+        } finally {
+          setLoading(false);
+          clearInterval(progressInterval);
+          onLoadingComplete?.();
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+    }
+  }, [data]);
 
   const filteredData = useMemo(() => {
     if (rawData.length === 0) return [];
