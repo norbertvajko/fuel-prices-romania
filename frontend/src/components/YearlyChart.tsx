@@ -213,10 +213,10 @@ const YearlyChart = ({
 
   if (loading || filteredData.length === 0) {
     return (
-      <section ref={chartContainerRef} className="rounded-2xl border border-border  mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-5xl">
-        <div className="p-4 sm:p-6 shadow-lg">
+      <section ref={chartContainerRef} className={`rounded-2xl border border-border mx-auto px-3 sm:px-4 -mt-10 sm:-mt-12 relative z-10 max-w-5xl ${isFullscreen ? "fixed inset-0 z-50 max-w-none rounded-none border-none bg-background" : ""}`}>
+        <div className={`p-4 sm:p-6 shadow-lg ${isFullscreen ? "h-full flex flex-col" : ""}`}>
           {renderHeader()}
-          <div className="h-[280px] sm:h-[350px] flex items-center justify-center">
+          <div className={`h-[280px] sm:h-[350px] flex items-center justify-center ${isFullscreen ? "flex-1" : ""}`}>
             <p className="text-muted-foreground text-xs sm:text-sm text-center">
               {loading
                 ? "Se încarcă datele..."
@@ -229,13 +229,13 @@ const YearlyChart = ({
   }
 
   return (
-    <section ref={chartContainerRef} className="rounded-2xl border border-border mx-auto px-4 sm:px-6 -mt-26 sm:-mt-12 relative z-10 max-w-5xl">
-      <div className=" p-4 sm:p-6 shadow-lg">
+    <section ref={chartContainerRef} className={`rounded-2xl border border-border mx-auto -mt-26 sm:-mt-12 relative z-10 max-w-5xl ${isFullscreen ? "fixed inset-0 z-50 max-w-none rounded-none border-none bg-background" : ""}`}>
+      <div className={`p-4 sm:p-6 ${isFullscreen ? "h-full flex flex-col" : ""}`}>
         {renderHeader()}
 
         <ChartContainer
           config={chartConfig}
-          className={`w-full overflow-visible ${isFullscreen ? "flex-1" : "h-[280px] sm:h-[350px]"}`}
+          className={`w-full overflow-visible ${isFullscreen ? "flex-1 min-h-0" : "h-[280px] sm:h-[350px]"}`}
         >
           <AreaChart
             data={filteredData}
