@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Fuel, Search, LocateFixed, Loader2, MapPin, AlertCircle } from "lucide-react";
+import { Fuel, Search, LocateFixed, Loader2, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import FuelIllustration from "./FuelIlustration";
