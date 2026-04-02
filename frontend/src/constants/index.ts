@@ -1,5 +1,3 @@
-import type { FuelType } from "../types";
-
 // Main API URL - uses env variables for different modes
 const BASE_API_URL =
   import.meta.env.MODE === "development"
