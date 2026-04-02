@@ -27,7 +27,6 @@ type RawEntry = { date: string; fuel_type: string; price: number };
 const Index = () => {
   const [stations, setStations] = useState<Station[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentCity, setCurrentCity] = useState<string | undefined>(undefined);
   const [lastUpdated, setLastUpdated] = useState<string | undefined>();
@@ -212,12 +211,6 @@ const Index = () => {
     }, 100);
   };
 
-  // Handle refresh
-  const handleRefresh = () => {
-    if (!currentCity) return;
-    setRefreshing(true);
-    doSearch(currentCity).finally(() => setRefreshing(false));
-  };
 
   return (
     <div className={`main-container flex flex-col overflow-hidden ${
@@ -248,16 +241,14 @@ const Index = () => {
         />
       </section>
       {/* Today's prices - Real data from your API */}
-      {(isLoading || refreshing || stations.length > 0) && (
+      {(isLoading || stations.length > 0) && (
         <PageSection ref={cityAveragesRef} className="mt-12">
-          {isLoading || refreshing ? (
+          {isLoading ? (
             <StationListSkeleton />
           ) : (
             <CityAverages
               city={lastCity || currentCity || ""}
               stations={stations}
-              onRefresh={handleRefresh}
-              isRefreshing={refreshing}
               isLoading={isLoading}
               lastUpdated={lastUpdated}
             />

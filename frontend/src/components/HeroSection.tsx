@@ -94,9 +94,6 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
         try {
           const { latitude, longitude } = position.coords;
           
-          // Show loading toast
-          toast.info("Se determină locația...", { icon: <Loader2 className="animate-spin h-5 w-5" /> });
-          
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ro`
           );
@@ -108,7 +105,6 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
             data.address?.municipality ||
             "";
           if (city) {
-            toast.success(`Locație detectată: ${city}`, { icon: <MapPin className="h-5 w-5" /> });
             onSearch?.(city, latitude, longitude);
           } else {
             toast.error("Nu s-a putut identifica orașul din locația ta", { icon: <AlertCircle className="h-5 w-5" /> });

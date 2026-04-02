@@ -21,21 +21,21 @@ const FuelPriceCard = ({ name, price, change, colorClass }: FuelPriceCardProps) 
         <span className="text-xs text-muted-foreground font-medium truncate">{name}</span>
       </div>
       
-      <div className="relative flex items-end justify-between">
+      <div className="relative flex items-end justify-between gap-2">
         <div>
           <span className="text-2xl font-bold text-foreground tracking-tight">
             {price.toFixed(2)}
           </span>
           <span className="text-xs font-medium text-muted-foreground ml-1">lei/l</span>
         </div>
-        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
+        <div className={`flex items-center gap-0.5 text-[10px] md:text-xs font-semibold px-1.5 md:px-2 py-0.5 rounded-full ${
           isUp 
             ? "bg-emerald-500/15 text-emerald-400" 
             : isDown 
               ? "bg-rose-500/15 text-rose-400" 
               : "bg-muted text-muted-foreground"
         }`}>
-          {isUp ? <TrendingUp className="w-3 h-3" /> : isDown ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+          {isUp ? <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" /> : isDown ? <TrendingDown className="w-2.5 h-2.5 md:w-3 md:h-3" /> : <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />}
           <span>{isUp ? "+" : ""}{change.toFixed(2)}</span>
         </div>
       </div>

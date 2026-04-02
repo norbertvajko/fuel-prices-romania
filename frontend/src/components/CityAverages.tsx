@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp, MapPin, Clock, RefreshCw } from "lucide-react";
+import { TrendingDown, TrendingUp, MapPin, Clock } from "lucide-react";
 import { FUEL_LABELS, FUEL_COLORS, type FuelType } from "../data/stations";
 import { capitalizeFirst } from "../lib/utilts";
 import type { Station } from "../types";
@@ -6,10 +6,7 @@ import type { Station } from "../types";
 interface CityAveragesProps {
     city: string;
     stations: Station[];
-    onRefresh?: () => void;
-    isRefreshing?: boolean;
     isLoading?: boolean;
-    canRefresh?: boolean;
     lastUpdated?: string;
 }
 
@@ -35,7 +32,7 @@ const fuelNameMap: Record<string, FuelType> = {
 };
 
 function computeAverages(stations: Station[]) {
-    const fuelMap = new Map<FuelType, number[]>();
+    const fuelMap = new Map<FuelType, number[]>()
 
     for (const station of stations) {
         for (const fuel of station.prices || []) {
@@ -60,11 +57,11 @@ function computeAverages(stations: Station[]) {
         });
 }
 
-const CityAverages = ({ city, stations, onRefresh, isRefreshing, isLoading, canRefresh, lastUpdated, headerRef }: CityAveragesProps & { headerRef?: React.RefObject<HTMLDivElement | null> }) => {
+const CityAverages = ({ city, stations, isLoading, lastUpdated, headerRef }: CityAveragesProps & { headerRef?: React.RefObject<HTMLDivElement | null> }) => {
     const fuelAverages = computeAverages(stations);
 
-    // Show skeleton when refreshing or loading
-    if (isRefreshing || isLoading) {
+    // Show skeleton when loading
+    if (isLoading) {
         return (
             <div className="rounded-xl bg-card border shadow-sm overflow-hidden animate-pulse">
                 <div ref={headerRef} className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3">
@@ -112,16 +109,6 @@ const CityAverages = ({ city, stations, onRefresh, isRefreshing, isLoading, canR
                         <Clock className="w-3 h-3" />
                         Prețul mediu per carburant pentru {capitalizeFirst(city)} • {displayTime}
                     </span>
-                    {onRefresh && (
-                        <button
-                            onClick={onRefresh}
-                            disabled={isRefreshing || !canRefresh}
-                            className="p-1.5 rounded-md bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground transition-colors disabled:opacity-50 cursor-pointer"
-                            title={!canRefresh ? "Trebuie să aștepți 10 minute între actualizări" : "Actualizează prețurile"}
-                        >
-                            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                        </button>
-                    )}
                 </div>
             </div>
 
