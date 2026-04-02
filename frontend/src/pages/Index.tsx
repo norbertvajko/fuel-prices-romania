@@ -9,6 +9,7 @@ import { API_URL } from "../constants";
 import type { Station, LiveFuelPrice } from "../types";
 import Footer from "../components/Footer";
 import LivePricesGrid from "../components/LivePricesGrid";
+import PageSection from "../components/PageSection";
 
 interface NationalAverageEntry {
   date: string;
@@ -248,7 +249,7 @@ const Index = () => {
       </section>
       {/* Today's prices - Real data from your API */}
       {(isLoading || refreshing || stations.length > 0) && (
-        <section ref={cityAveragesRef} className="mx-auto max-w-5xl mt-12 w-fit sm:w-full">
+        <PageSection ref={cityAveragesRef} className="mt-12">
           {isLoading || refreshing ? (
             <StationListSkeleton />
           ) : (
@@ -261,12 +262,12 @@ const Index = () => {
               lastUpdated={lastUpdated}
             />
           )}
-        </section>
+        </PageSection>
       )}
 
       {/* Stations section - Real data from your API */}
       {(isLoading || stations.length > 0 || hasSearched) && (
-        <section className="w-full max-w-5xl mx-auto mt-8 px-4 sm:px-0">
+        <PageSection className="mt-8">
           {isLoading ? (
             <StationListSkeleton />
           ) : stations.length > 0 ? (
@@ -329,7 +330,7 @@ const Index = () => {
               <p className="text-muted-foreground">Nu s-au găsit stații în această zonă</p>
             </div>
           ) : null}
-        </section>
+        </PageSection>
       )}
       <Footer />
     </div>

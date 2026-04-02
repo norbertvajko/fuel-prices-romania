@@ -37,23 +37,6 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
   const [cachedPrice, setCachedPrice] = useState<string>("");
   const [cachedLabel, setCachedLabel] = useState<string>("");
 
-  useEffect(() => {
-    // Try to load from cache first
-    try {
-      const cached = localStorage.getItem(FUEL_DATA_CACHE_KEY);
-      if (cached) {
-        const parsed: CachedFuelData = JSON.parse(cached);
-        const now = Date.now();
-        if (now - parsed.timestamp < CACHE_DURATION) {
-          setCachedPrice(parsed.price);
-          setCachedLabel(parsed.label);
-        }
-      }
-    } catch {
-      // Ignore cache errors
-    }
-  }, []);
-
   // Update cache when new data arrives
   useEffect(() => {
     if (nationalDieselAvgPrice && nationalFuelLabel) {

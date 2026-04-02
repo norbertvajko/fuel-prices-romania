@@ -16,7 +16,7 @@ const LivePricesGrid = ({ prices }: LivePricesGridProps) => {
   const displayPrices = prices.length > 0 ? prices : null;
 
   return (
-    <div className="w-full max-w-5xl mx-auto mb-10">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-0 mb-10">
       <div className="relative overflow-hidden rounded-2xl border border-border dark:border-border/80 bg-card/40 dark:bg-card/60 backdrop-blur-xl p-5">
         {/* Decorative gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />

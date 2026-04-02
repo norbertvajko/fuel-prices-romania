@@ -55,16 +55,6 @@
   --color-fuel-benzina98: hsl(var(--fuel-benzina98));
   --color-fuel-gpl: hsl(var(--fuel-gpl));
 
-  /* === SIDEBAR === */
-  --color-sidebar-background: hsl(var(--sidebar-background));
-  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
-
   /* === TYPOGRAPHY === */
   --font-sans: 'Inter', sans-serif;
 
@@ -72,12 +62,8 @@
   --radius: var(--radius);
   --radius-xl: 0.75rem;
 
-  /* === BREAKPOINTS === */
-  --breakpoint-xs: 30rem;
-
   /* === ANIMATIONS === */
   --animate-fade-in-up: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-skeleton-pulse: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* =========================
@@ -105,12 +91,6 @@
 
   50% {
     opacity: 0.5;
-  }
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
   }
 }
 
@@ -155,21 +135,12 @@
 
     --radius: 0.75rem;
 
-    /* optional domain-specific colors */
+    /* Domain-specific fuel colors */
     --fuel-motorina: 217.2 91.2% 59.8%;
     --fuel-motorina-plus: 220 80% 60%;
     --fuel-benzina95: 40 90% 55%;
     --fuel-benzina98: 25 90% 55%;
     --fuel-gpl: 155 60% 45%;
-
-    --sidebar-background: 222.2 47.4% 9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 222.2 30% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222.2 25% 18%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -213,15 +184,6 @@
     --fuel-benzina95: 40 90% 55%;
     --fuel-benzina98: 25 90% 55%;
     --fuel-gpl: 155 60% 45%;
-
-    --sidebar-background: 222.2 47.4% 9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 222.2 30% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222.2 25% 18%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .light {
@@ -265,15 +227,6 @@
     --fuel-benzina95: 40 90% 55%;
     --fuel-benzina98: 25 90% 55%;
     --fuel-gpl: 155 60% 45%;
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222.2 47.4% 11.2%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
