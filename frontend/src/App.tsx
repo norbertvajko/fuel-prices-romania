@@ -18,8 +18,20 @@ const App: React.FC = () => {
         {/* Theme Toggle Button */}
         <ThemeToggle />
         
-        {/* Sonner toast */}
-        <SonnerToaster position="top-right" />
+        {/* Sonner toast - theme-aware for light/dark mode */}
+        <SonnerToaster 
+          position="bottom-right"
+          theme="system"
+          visibleToasts={3}
+          richColors
+          toastOptions={{
+            style: {
+              background: 'hsl(var(--card))',
+              color: 'hsl(var(--card-foreground))',
+              border: '1px solid hsl(var(--border))',
+            },
+          }}
+        />
         
         {/* React Router */}
         <BrowserRouter>

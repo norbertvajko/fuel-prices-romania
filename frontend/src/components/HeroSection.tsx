@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { Fuel, Search, LocateFixed, Loader2 } from "lucide-react";
+import { Fuel, Search, LocateFixed, Loader2, MapPin, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import FuelIllustration from "./FuelIlustration";
 
 interface HeroSectionProps {
@@ -11,13 +12,6 @@ interface HeroSectionProps {
 
 // Cache key for localStorage
 const FUEL_DATA_CACHE_KEY = "fuel_data_cache";
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-interface CachedFuelData {
-  price: string;
-  label: string;
-  timestamp: number;
-}
 
 const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: HeroSectionProps) => {
   const [query, setQuery] = useState("");
@@ -78,13 +72,31 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
   };
 
   const handleLocateMe = async () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      toast.error("Geolocation nu este suportată de browserul tău", { icon: <AlertCircle className="h-5 w-5" /> });
+      return;
+    }
+    
     setLocating(true);
+
+    // First check if geolocation is available
+    navigator.permissions?.query({ name: 'geolocation' }).then((result) => {
+      if (result.state === 'denied') {
+        toast.error("Permisiunea pentru locație a fost refuzată. Activează locația în setările browserului.", { icon: <AlertCircle className="h-5 w-5" /> });
+        setLocating(false);
+      }
+    }).catch(() => {
+      // Permission API not supported, continue with geolocation
+    });
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
+          
+          // Show loading toast
+          toast.info("Se determină locația...", { icon: <Loader2 className="animate-spin h-5 w-5" /> });
+          
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ro`
           );
@@ -96,16 +108,30 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
             data.address?.municipality ||
             "";
           if (city) {
+            toast.success(`Locație detectată: ${city}`, { icon: <MapPin className="h-5 w-5" /> });
             onSearch?.(city, latitude, longitude);
+          } else {
+            toast.error("Nu s-a putut identifica orașul din locația ta", { icon: <AlertCircle className="h-5 w-5" /> });
           }
         } catch {
-          // silently fail
+          toast.error("Eroare la determinarea locației. Încearcă din nou.", { icon: <AlertCircle className="h-5 w-5" /> });
         } finally {
           setLocating(false);
         }
       },
-      () => setLocating(false),
-      { enableHighAccuracy: true, timeout: 10000 }
+      (error) => {
+        let message = "Eroare la detectarea locației";
+        if (error.code === error.PERMISSION_DENIED) {
+          message = "Permisiunea pentru locație a fost refuzată. Activează locația în setările browserului.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          message = "Informațiile despre locație nu sunt disponibile.";
+        } else if (error.code === error.TIMEOUT) {
+          message = "Cererea pentru locație a expirat. Încearcă din nou.";
+        }
+        toast.error(message, { icon: <AlertCircle className="h-5 w-5" /> });
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
     );
   };
 
@@ -199,7 +225,9 @@ const HeroSection = ({ onSearch, nationalDieselAvgPrice, nationalFuelLabel }: He
               className={`mt-3 flex items-center gap-2 text-xs font-medium transition-colors cursor-pointer group disabled:opacity-50 ${isLightMode
                   ? "text-gray-500 hover:text-gray-700"
                   : "text-hero-foreground/70 hover:text-hero-foreground"
-                }`}>
+                }`}
+              title="Apasă pentru a-ți detecta locația automat"
+            >
               {locating ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
