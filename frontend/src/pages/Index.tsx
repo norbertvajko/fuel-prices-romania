@@ -3,7 +3,7 @@ import HeroSection from "../components/HeroSection";
 import YearlyChart from "../components/YearlyChart";
 import CityAverages from "../components/CityAverages";
 import StationCard from "../components/StationCard";
-import { StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
+import { StationListSkeleton } from "../components/Skeletons";
 import FuelLoader from "../components/FuelLoader";
 import { API_URL } from "../constants";
 import type { Station, LiveFuelPrice } from "../types";
@@ -250,7 +250,7 @@ const Index = () => {
       {(isLoading || refreshing || stations.length > 0) && (
         <section ref={cityAveragesRef} className="mx-auto max-w-5xl mt-12 w-fit sm:w-full">
           {isLoading || refreshing ? (
-            <TodayPricesSkeleton />
+            <StationListSkeleton />
           ) : (
             <CityAverages
               city={lastCity || currentCity || ""}

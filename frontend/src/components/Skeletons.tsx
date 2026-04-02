@@ -35,26 +35,6 @@ export const PriceCardSkeleton = () => (
   </div>
 );
 
-export const TodayPricesSkeleton = () => (
-  <div className="rounded-xl bg-card border shadow-sm overflow-hidden animate-pulse">
-    {/* Header strip */}
-    <div className="bg-primary px-3 sm:px-5 py-2.5 sm:py-3">
-      <div className="h-5 sm:h-6 w-24 sm:w-32 bg-primary/20 rounded" />
-    </div>
-    {/* Price cards grid */}
-    <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="rounded-lg border bg-background p-3 flex flex-col items-center gap-2">
-          <Skeleton className="w-8 h-10 rounded" />
-          <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-5 w-12" />
-          <Skeleton className="h-2 w-20" />
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
 export const StationCardSkeleton = () => (
   <div className="group relative rounded-2xl bg-card border border-border/50 overflow-hidden shadow-[0_1px_4px_0_hsl(var(--foreground)/0.03),0_6px_20px_0_hsl(var(--foreground)/0.04)]">
     <div className="p-4 sm:p-6 pb-5">
