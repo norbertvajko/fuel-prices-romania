@@ -5,6 +5,7 @@ Database functions for price history storage.
 import psycopg2
 import os
 import logging
+from datetime import datetime
 
 logger = logging.getLogger("fuel_scraper")
 
@@ -158,7 +159,7 @@ def clear_price_history() -> None:
 def save_national_average(prices: dict) -> None:
     """
     Save national average prices to database.
-    Uses INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day.
+    If a record already exists for today (same date), it will be replaced.
 
     Args:
         prices: Dict with fuel types as keys and average prices as values
@@ -169,24 +170,34 @@ def save_national_average(prices: dict) -> None:
         conn = get_connection()
         cursor = conn.cursor()
 
+        # Get today's date (date only, no time)
+        today = datetime.now().date()
+
         saved_count = 0
         for fuel_type, price in prices.items():
             if price and price != float("inf"):
-                # Use INSERT ON CONFLICT DO NOTHING to keep the first scrape of the day
+                # Delete existing records for this fuel type with the same date
+                cursor.execute(
+                    """
+                    DELETE FROM national_averages 
+                    WHERE fuel_type = %s AND DATE(timestamp) = %s
+                    """,
+                    (fuel_type, today),
+                )
+                
+                # Insert new record
                 cursor.execute(
                     """
                     INSERT INTO national_averages (fuel_type, price, timestamp)
                     VALUES (%s, %s, CURRENT_TIMESTAMP)
-                    ON CONFLICT (fuel_type, timestamp) DO NOTHING
-                """,
+                    """,
                     (fuel_type, price),
                 )
-                if cursor.rowcount > 0:
-                    saved_count += 1
+                saved_count += 1
 
         conn.commit()
         conn.close()
-        logger.info("Saved national average prices: %s (%d new records)", prices, saved_count)
+        logger.info("Saved national average prices: %s (%d records)", prices, saved_count)
     except Exception as e:
         logger.error(f"Failed to save national average prices: {e}", exc_info=True)
         if conn:

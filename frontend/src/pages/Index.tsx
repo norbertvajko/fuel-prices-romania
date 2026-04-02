@@ -6,8 +6,9 @@ import StationCard from "../components/StationCard";
 import { StationListSkeleton, TodayPricesSkeleton } from "../components/Skeletons";
 import FuelLoader from "../components/FuelLoader";
 import { API_URL } from "../constants";
-import type { Station } from "../types";
+import type { Station, LiveFuelPrice } from "../types";
 import Footer from "../components/Footer";
+import LivePricesGrid from "../components/LivePricesGrid";
 
 interface NationalAverageEntry {
   date: string;
@@ -36,6 +37,7 @@ const Index = () => {
   const [nationalFuelPrices, setNationalFuelPrices] = useState<FuelPrice[]>([]);
   const [currentFuelIndex, setCurrentFuelIndex] = useState(0);
   const [nationalAverageHistory, setNationalAverageHistory] = useState<RawEntry[]>([]);
+  const [liveFuelPrices, setLiveFuelPrices] = useState<LiveFuelPrice[]>([]);
 
   // Track last known city for skeleton display
   const [lastCity, setLastCity] = useState<string | undefined>(undefined);
@@ -63,41 +65,73 @@ const Index = () => {
 
           // Get today's date in YYYY-MM-DD format
           const today = new Date().toISOString().split('T')[0];
+          
+          // Get yesterday's date
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
 
           // Get today's price for each fuel type
           const fuelTypes = [
-            { fuel_type: "diesel", label: "Motorină" },
-            { fuel_type: "diesel_plus", label: "Motorină Plus" },
-            { fuel_type: "b95", label: "Benzină 95" },
-            { fuel_type: "b98", label: "Benzină 98" },
-            { fuel_type: "gpl", label: "GPL" },
+            { fuel_type: "diesel", label: "Motorină", colorClass: "bg-fuel-diesel" },
+            { fuel_type: "diesel_plus", label: "Motorină+", colorClass: "bg-fuel-diesel-plus" },
+            { fuel_type: "b95", label: "Benzină 95", colorClass: "bg-fuel-benzina95" },
+            { fuel_type: "b98", label: "Benzină 98", colorClass: "bg-fuel-benzina98" },
+            { fuel_type: "gpl", label: "GPL", colorClass: "bg-fuel-gpl" },
           ];
 
           const prices: FuelPrice[] = [];
-          fuelTypes.forEach(({ fuel_type, label }) => {
+          const livePrices: LiveFuelPrice[] = [];
+          
+          fuelTypes.forEach(({ fuel_type, label, colorClass }) => {
             // Find today's entry for this fuel type
             const todayEntry = result.history.find(
               (entry: NationalAverageEntry) => 
                 entry.fuel_type === fuel_type && entry.date === today
             );
             
+            // Find yesterday's entry for this fuel type
+            const yesterdayEntry = result.history.find(
+              (entry: NationalAverageEntry) => 
+                entry.fuel_type === fuel_type && entry.date === yesterdayStr
+            );
+            
             // If no entry for today, get the most recent entry
-            const latestEntry = todayEntry || result.history
+            const sortedEntries = result.history
               .filter((entry: NationalAverageEntry) => entry.fuel_type === fuel_type)
               .sort((a: NationalAverageEntry, b: NationalAverageEntry) => 
                 new Date(b.date).getTime() - new Date(a.date).getTime()
-              )[0];
+              );
+            
+            const latestEntry = todayEntry || sortedEntries[0];
+            
+            // Calculate yesterday's price from sorted entries
+            const yesterdayPrice = yesterdayEntry ? yesterdayEntry.price : 
+              (sortedEntries.length > 1 ? sortedEntries[1]?.price : latestEntry?.price);
             
             if (latestEntry) {
+              // For hero section cycling
               prices.push({
                 price: latestEntry.price.toFixed(1),
                 label,
+              });
+              
+              // For LivePricesGrid - with change from yesterday
+              const change = latestEntry.price - (yesterdayPrice || latestEntry.price);
+              livePrices.push({
+                name: label,
+                price: parseFloat(latestEntry.price.toFixed(2)),
+                change: parseFloat(change.toFixed(2)),
+                colorClass,
               });
             }
           });
 
           if (prices.length > 0) {
             setNationalFuelPrices(prices);
+          }
+          if (livePrices.length > 0) {
+            setLiveFuelPrices(livePrices);
           }
         }
       } catch (error) {
@@ -200,8 +234,12 @@ const Index = () => {
         nationalFuelLabel={nationalFuelPrices[currentFuelIndex]?.label || "Motorină"}
       />
 
+      <div className="mx-auto sm:mx-0 -mt-6 relative z-20">
+        <LivePricesGrid prices={liveFuelPrices} />
+      </div>
+
       {/* Chart - always show */}
-      <section className="mx-auto px-4 -mt-12 z-10 w-full">
+      <section className="mx-auto px-4 mt-22 sm:mt-8 z-10 w-full">
         <YearlyChart
           onLoadingComplete={() => setIsChartLoaded(true)}
           onProgress={(progress) => setChartProgress(progress)}
@@ -210,7 +248,7 @@ const Index = () => {
       </section>
       {/* Today's prices - Real data from your API */}
       {(isLoading || refreshing || stations.length > 0) && (
-        <section ref={cityAveragesRef} className="max-w-6xl mx-auto px-4 mt-12 w-full">
+        <section ref={cityAveragesRef} className="mx-auto max-w-5xl mt-12 w-fit sm:w-full">
           {isLoading || refreshing ? (
             <TodayPricesSkeleton />
           ) : (
@@ -228,7 +266,7 @@ const Index = () => {
 
       {/* Stations section - Real data from your API */}
       {(isLoading || stations.length > 0 || hasSearched) && (
-        <section className="max-w-6xl mx-auto px-4 mt-8 w-full">
+        <section className="w-full max-w-5xl mx-auto mt-8 px-4 sm:px-0">
           {isLoading ? (
             <StationListSkeleton />
           ) : stations.length > 0 ? (

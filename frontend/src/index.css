@@ -76,7 +76,7 @@
   --breakpoint-xs: 30rem;
 
   /* === ANIMATIONS === */
-  --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in-up: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-skeleton-pulse: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -310,6 +310,17 @@ body {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+
+/* Fuel color utilities */
+.bg-fuel-diesel { background-color: hsl(var(--fuel-motorina)); }
+.bg-fuel-diesel-plus { background-color: hsl(var(--fuel-motorina-plus)); }
+.bg-fuel-benzina95 { background-color: hsl(var(--fuel-benzina95)); }
+.bg-fuel-benzina98 { background-color: hsl(var(--fuel-benzina98)); }
+.bg-fuel-gpl { background-color: hsl(var(--fuel-gpl)); }
+
+/* Price change colors */
+.text-price-up { color: hsl(var(--success)); }
+.text-price-down { color: hsl(var(--destructive)); }
 
 /* =========================
    MOBILE TWEAK

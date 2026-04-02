@@ -74,18 +74,18 @@ const YearlyChart = ({
   data?: RawEntry[];
 } = {}) => {
   const [rawData, setRawData] = useState<RawEntry[]>([]);
-  const [activeRange, setActiveRange] = useState<RangeKey>("ALL");
+  const [activeRange, setActiveRange] = useState<RangeKey>("1Y");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (data !== undefined && data.length > 0) {
       // Use data passed from parent
       setRawData(data);
       setLoading(false);
       onProgress?.(100);
       onLoadingComplete?.();
-    } else {
-      // Fallback: fetch data if not provided
+    } else if (data === undefined) {
+      // Fallback: fetch data if not provided (data is undefined, not empty array)
       const fetchData = async () => {
         const startTime = Date.now();
         const estimatedDuration = 2000;

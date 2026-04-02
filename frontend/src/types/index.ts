@@ -65,3 +65,11 @@ export interface FuelOption {
   color: string;
   activeBg: string;
 }
+
+// Live fuel price with change
+export interface LiveFuelPrice {
+  name: string;
+  price: number;
+  change: number;
+  colorClass: string;
+}
